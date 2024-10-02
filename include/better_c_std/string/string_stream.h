@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "../better_io.h"
+#include <better_c_std/io.h>
 
 typedef struct StringStream {
   char* buffer;

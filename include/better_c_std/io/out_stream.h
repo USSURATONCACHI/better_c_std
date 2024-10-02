@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <better_std/string/str_t_raw.h>
+#include <better_c_std/string/str_t_raw.h>
 
 typedef struct OutStreamVtable {
   int (*putc)(void* this, int);

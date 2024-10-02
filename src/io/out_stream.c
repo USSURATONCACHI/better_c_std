@@ -1,10 +1,10 @@
-#include "out_stream.h"
+#include <better_c_std/io/out_stream.h>
+#include <better_c_std/string/str_t.h>
+#include <better_c_std/prettify.h>
 
 #include <limits.h>
 #include <stdio.h>
 
-#include "../better_string/str_t.h"
-#include "../prettify_c.h"
 
 int outstream_putc(int c, OutStream this) {
   return this.vtable->putc(this.data, c);
@@ -92,12 +92,12 @@ static int puts_buf(BufferOutStream* this, const char* str) {
   if (this->pos >= this->length) return EOF;
 
   size_t i;
-  for (i = 0; str[i] != '\0' and (this->pos + i + 1) < this->length; i++)
+  for (i = 0; str[i] != '\0' && (this->pos + i + 1) < this->length; i++)
     this->buffer[i + this->pos] = str[i];
   this->buffer[i + this->pos] = '\0';
   this->pos += i + 1;
 
-  if (str[i] is '\0') {
+  if (str[i] == '\0') {
     return '\n';
   } else {
     return EOF;
@@ -109,12 +109,12 @@ static int put_slice_buf(BufferOutStream* this, const char* str,
   if (this->pos >= this->length) return EOF;
 
   size_t i;
-  for (i = 0; i < length and (this->pos + i + 1) < this->length; i++)
+  for (i = 0; i < length && (this->pos + i + 1) < this->length; i++)
     this->buffer[i + this->pos] = str[i];
   this->buffer[i + this->pos] = '\0';
   this->pos += i + 1;
 
-  if (str[i] is '\0') {
+  if (str[i] == '\0') {
     return '\n';
   } else {
     return EOF;

@@ -1,12 +1,12 @@
-#include "x_printf.h"
+#include <better_c_std/io/x_printf.h>
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-#include "../better_string.h"
-#include "../prettify_c.h"
+#include <better_c_std/string.h>
+#include <better_c_std/prettify.h>
 
 void x_printf(const char* format, ...) {
   va_list list;
@@ -28,7 +28,7 @@ void x_sprintf(OutStream stream, const char* format, ...) {
 }
 
 static const char* next_item(const char* format) {
-  while (format[0] != '%' and format[0] != '\0') format++;
+  while (format[0] != '%' && format[0] != '\0') format++;
 
   return format;
 }
@@ -90,17 +90,17 @@ static const char* put_format(OutStream stream, const char* format,
   unused(list);
   Specificator info = parse_specificator(format + 1);
 
-  if (info.type is 's') {
+  if (info.type == 's') {
     put_string_fmt(stream, info, format, list, total_written);
-  } else if (info.type is 'b') {
+  } else if (info.type == 'b') {
     put_bool_fmt(stream, info, format, list, total_written);
-  } else if (info.type is 'n') {
+  } else if (info.type == 'n') {
     put_n_fmt(stream, info, format, list, total_written);
-  } else if (info.type is '%') {
+  } else if (info.type == '%') {
     outstream_putc('%', stream);
     (*total_written) += 1;
     return format + 1;
-  } else if (info.type is 0) {
+  } else if (info.type == 0) {
     return format + 1;
   } else {
     char buffer[BUFFER_SIZE] = {'\0'};
@@ -108,22 +108,22 @@ static const char* put_format(OutStream stream, const char* format,
              (FORMAT_BUF_SIZE - 1)) char format_buf[BUFFER_SIZE] = {'\0'};
     strncpy(format_buf, format, info.symbols_count + 1);
 
-    if (info.type is 'f') {
-      if (strcmp(info.length_mod, "l") is 0 or strcmp(info.length_mod, "") is 0)
+    if (info.type == 'f') {
+      if (strcmp(info.length_mod, "l") == 0 || strcmp(info.length_mod, "") == 0)
         sprintf(buffer, format_buf, va_arg(list->list, double));
       else
         panic("Unsupported format: %%%s%c", info.length_mod, info.type);
-    } else if (info.type is 'c') {
+    } else if (info.type == 'c') {
       sprintf(buffer, format_buf, va_arg(list->list, int));
-    } else if (info.type is 'p') {
+    } else if (info.type == 'p') {
       void* ptr = va_arg(list->list, void*);
       sprintf(buffer, format_buf, ptr);
-    } else if (info.type is 'd' or info.type is 'i' or info.type is 'u') {
-      if (strcmp(info.length_mod, "l") is 0)
+    } else if (info.type == 'd' || info.type == 'i' || info.type == 'u') {
+      if (strcmp(info.length_mod, "l") == 0)
         sprintf(buffer, format_buf, va_arg(list->list, long));
-      else if (strcmp(info.length_mod, "ll") is 0)
+      else if (strcmp(info.length_mod, "ll") == 0)
         sprintf(buffer, format_buf, va_arg(list->list, long long));
-      else if (strcmp(info.length_mod, "") is 0) {
+      else if (strcmp(info.length_mod, "") == 0) {
         sprintf(buffer, format_buf, va_arg(list->list, int));
       } else
         panic("Unsupported format: %%%s%c", info.length_mod, info.type);
@@ -136,7 +136,7 @@ static const char* put_format(OutStream stream, const char* format,
     (*total_written) += strlen(buffer);
   }
 
-  return format + 1 + (info.symbols_count is 0 ? 1 : info.symbols_count);
+  return format + 1 + (info.symbols_count == 0 ? 1 : info.symbols_count);
 }
 
 static void put_string_fmt(OutStream stream, Specificator info,
@@ -148,12 +148,12 @@ static void put_string_fmt(OutStream stream, Specificator info,
 
     outstream_put_slice(string, info.precision, stream);
     (*total_written) +=
-        info.precision is 0 ? 0 : MIN((int)strlen(string), info.precision);
-  } else if (info.precision is - 1) {
+        info.precision == 0 ? 0 : MIN((int)strlen(string), info.precision);
+  } else if (info.precision == - 1) {
     int len = va_arg(list->list, int);
     char* string = va_arg(list->list, char*);
     outstream_put_slice(string, len, stream);
-    (*total_written) += len is 0 ? 0 : MIN((int)strlen(string), len);
+    (*total_written) += len == 0 ? 0 : MIN((int)strlen(string), len);
   } else {
     char* string = va_arg(list->list, char*);
     // printf("< for str got ptr %p >", string);
@@ -164,20 +164,20 @@ static void put_string_fmt(OutStream stream, Specificator info,
 
 static void put_n_fmt(OutStream stream, Specificator info, const char* format,
                       VaListWrap* list, int* total_written) {
-  debugln("x_printf WARNING: %n formatter is not fully supported.");
+  debugln("x_printf WARNING: %n formatter == not fully supported.");
   unused(stream);
   unused(format);
-  if (strcmp(info.length_mod, "l") is 0) {
+  if (strcmp(info.length_mod, "l") == 0) {
     (*(va_arg(list->list, long*))) = (*total_written);
-  } else if (strcmp(info.length_mod, "ll") is 0) {
+  } else if (strcmp(info.length_mod, "ll") == 0) {
     (*(va_arg(list->list, long long*))) = (*total_written);
-  } else if (strcmp(info.length_mod, "j") is 0) {
+  } else if (strcmp(info.length_mod, "j") == 0) {
     (*(va_arg(list->list, intmax_t*))) = (*total_written);
-  } else if (strcmp(info.length_mod, "z") is 0) {
+  } else if (strcmp(info.length_mod, "z") == 0) {
     (*(va_arg(list->list, size_t*))) = (*total_written);
-  } else if (strcmp(info.length_mod, "t") is 0) {
+  } else if (strcmp(info.length_mod, "t") == 0) {
     (*(va_arg(list->list, ptrdiff_t*))) = (*total_written);
-  } else if (strcmp(info.length_mod, "LL") is 0) {
+  } else if (strcmp(info.length_mod, "LL") == 0) {
     (*(va_arg(list->list, int64_t*))) = (*total_written);
   } else {
     (*(va_arg(list->list, int*))) = (*total_written);
@@ -214,7 +214,7 @@ static Specificator parse_specificator(const char* str) {
   size_t len = strlen(str);
 
   size_t i = 0;
-  // if (str[i] is 'r') {
+  // if (str[i] == 'r') {
   // spec.is_array = true;
   // i++;
   // }
@@ -239,11 +239,11 @@ static Specificator parse_specificator(const char* str) {
 
   // Width
   int read_width = 0;
-  while (i < len and str[i] >= '0' and str[i] <= '9') {
+  while (i < len && str[i] >= '0' && str[i] <= '9') {
     read_width = read_width * 10 + (str[i] - '0');
     i++;
   }
-  if (str[i] is '*') {
+  if (str[i] == '*') {
     spec.width = -1;
     i++;
   }
@@ -251,13 +251,13 @@ static Specificator parse_specificator(const char* str) {
 
   // Precision
   int read_prec = 0;
-  if (str[i] is '.') {
+  if (str[i] == '.') {
     i++;
-    while (i < len and str[i] >= '0' and str[i] <= '9') {
+    while (i < len && str[i] >= '0' && str[i] <= '9') {
       read_prec = read_prec * 10 + (str[i] - '0');
       i++;
     }
-    if (str[i] is '*') {
+    if (str[i] == '*') {
       read_prec = -1;
       i++;
     }
@@ -267,7 +267,7 @@ static Specificator parse_specificator(const char* str) {
   // Size
   const char* const sizes[] = {"ll", "hh", "h", "l", "j", "z", "t", "L", "r"};
   for (int s = 0; s < (int)LEN(sizes); s++) {
-    if (strncmp(str + i, sizes[s], strlen(sizes[s])) is 0) {
+    if (strncmp(str + i, sizes[s], strlen(sizes[s])) == 0) {
       spec.length_mod = sizes[s];
       i += strlen(sizes[s]);
       break;
@@ -277,7 +277,7 @@ static Specificator parse_specificator(const char* str) {
   // Type
   const char allspec[] = "bdiouxXfFeEgGaAcsSpn%";
   for (int s = 0; s < (int)strlen(allspec); s++) {
-    if (str[i] is allspec[s]) {
+    if (str[i] == allspec[s]) {
       spec.type = str[i];
       i++;
       break;

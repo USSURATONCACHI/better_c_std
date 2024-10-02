@@ -1,13 +1,13 @@
-#include "str_t.h"
+#include <better_c_std/string/str_t.h>
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "../allocator.h"
-#include "../prettify_c.h"
-#include "string_stream.h"
+#include <better_c_std/allocator.h>
+#include <better_c_std/prettify.h>
+#include <better_c_std/string/string_stream.h>
 
 str_t str_literal(const char* literal) { return (str_t){literal, false}; }
 str_t str_owned(const char* format, ...) {
@@ -36,16 +36,16 @@ str_t str_raw_owned(char* text) {
 }
 
 void str_free(str_t s) {
-  if (s.is_owned and s.string is_not null) {
+  if (s.is_owned && s.string != NULL) {
     // debugln("Freeing str_t at %p (%s)", s.string, s.string);
     FREE((void*)s.string);
   }
 }
 
 void str_free_p(str_t* s) {
-  if (s is null) return;
+  if (s == NULL) return;
 
-  if (s->is_owned and s->string is_not null) FREE((void*)s->string);
+  if (s->is_owned && s->string != NULL) FREE((void*)s->string);
 
   FREE(s);
 }
@@ -68,7 +68,7 @@ str_t str_clone(const str_t* source) {
 void str_result_free(StrResult this) { str_free(this.data); }
 
 str_t read_file_to_str(const char* filename) {
-  char* buffer = null;
+  char* buffer = NULL;
   long length;
   FILE* f = fopen(filename, "rb");
 
@@ -84,15 +84,15 @@ str_t read_file_to_str(const char* filename) {
     buffer[length] = '\0';
 
     for (long i = 0; buffer[i] != '\0'; i++)
-      if (buffer[i] is '\r') buffer[i] = ' ';
+      if (buffer[i] == '\r') buffer[i] = ' ';
   }
 
   return (str_t){.is_owned = true, .string = buffer};
 }
 
-#include "vec_str_t.h"
+#include <better_c_std/string/vec_str_t.h>
 
 #define VECTOR_C str_t
 #define VECTOR_ITEM_DESTRUCTOR str_free
 #define VECTOR_ITEM_CLONE str_clone
-#include "../vector.h"
+#include <better_c_std/vector.h>

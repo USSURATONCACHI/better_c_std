@@ -1,14 +1,14 @@
-#include "allocator.h"
+#include <better_c_std/allocator.h>
 
 #include <stdlib.h>
 
-#include "prettify_c.h"
+#include <better_c_std/prettify.h>
 
 #undef VECTOR_MALLOC_FN
 #undef VECTOR_FREE_FN
 #undef VECTOR_REALLOC_FN
 #define VECTOR_C MemRegion
-#include "vector.h"
+#include <better_c_std/vector.h>
 
 // static vec_MemRegion regions = {.data = null, .capacity = 0, .length = 0};
 

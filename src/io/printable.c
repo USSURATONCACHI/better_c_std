@@ -1,7 +1,6 @@
-#include "printable.h"
-
-#include "../better_string/str_t.h"
-#include "../prettify_c.h"
+#include <better_c_std/io/printable.h>
+#include <better_c_std/string/str_t.h>
+#include <better_c_std/prettify.h>
 
 void printable_print(Printable this, OutStream out) {
   this.print(this.data, out);

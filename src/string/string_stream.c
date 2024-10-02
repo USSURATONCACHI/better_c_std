@@ -1,10 +1,10 @@
-#include "string_stream.h"
+#include <better_c_std/string/string_stream.h>
 
 #include <string.h>
 
-#include "../allocator.h"
-#include "../prettify_c.h"
-#include "str_t.h"
+#include <better_c_std/allocator.h>
+#include <better_c_std/prettify.h>
+#include <better_c_std/string/str_t.h>
 
 #define BUFFER_EXTRA_CAP 128
 #define CHAR_REALLOC_COEF 4 / 3
@@ -13,7 +13,7 @@ void string_stream_free(StringStream this) { free(this.buffer); }
 
 StringStream string_stream_create() {
   return (StringStream){
-      .buffer = null,
+      .buffer = NULL,
       .capacity = 0,
       .length = 0,
   };
@@ -66,7 +66,7 @@ static int ss_puts(StringStream* this, const char* str) {
 }
 
 static int ss_put_slice(StringStream* this, const char* str, int length) {
-  if (length is 0) return '\n';
+  if (length == 0) return '\n';
   if ((this->length + length) > this->capacity) ss_realloc(this, length);
 
   memcpy(&this->buffer[this->length], str, sizeof(char) * length);

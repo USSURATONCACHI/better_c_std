@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 add_library(s21_ussur_better_c_std SHARED
     src/allocator.c
     src/common_vecs.c
-    src/other.c
+    src/debug.c
     src/printf_extensions.c
 
     src/string/str_slice.c

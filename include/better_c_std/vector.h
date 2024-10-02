@@ -46,7 +46,8 @@
 #endif
 #include <stddef.h>
 
-#include "prettify_c.h"
+#include <better_c_std/prettify/assert.h>
+#include <better_c_std/prettify/misc.h>
 
 #ifdef VECTOR_H
 #define VEC_T CONCAT(vec_, VECTOR_H)
@@ -118,7 +119,7 @@ VEC_STATIC_PREFIX VEC_T VEC_CREATE() {
 }
 
 VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(int cap) {
-  if (cap is 0)
+  if (cap == 0)
     return VEC_CREATE();
   else if (cap < 0)
     panic("Cannot create vector with negative capacity (%d)", cap);
