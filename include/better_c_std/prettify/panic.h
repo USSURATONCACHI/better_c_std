@@ -3,6 +3,7 @@
 
 #include <better_c_std/io/x_printf.h>
 #include <better_c_std/io/out_stream.h>
+#include <stdlib.h>
 
 #define panic(...)                                                          \
   {                                                                         \
