@@ -23,10 +23,21 @@ add_library(s21_ussur_better_c_std SHARED
 
 target_include_directories(s21_ussur_better_c_std PUBLIC include)
 
+include(GNUInstallDirs)
 install(
     TARGETS s21_ussur_better_c_std
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+# Install the header files
+install(
+    DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
 
 if (BCSTD_BUILD_EXAMPLES)
     add_subdirectory(examples)
