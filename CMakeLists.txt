@@ -11,6 +11,7 @@ add_library(s21_ussur_better_c_std SHARED
     src/common_vecs.c
     src/debug.c
     src/printf_extensions.c
+    src/pipe.c
 
     src/string/str_slice.c
     src/string/str_t.c
