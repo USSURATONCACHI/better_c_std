@@ -104,40 +104,10 @@ static const char* put_format(OutStream stream, const char* format,
     return format + 1;
   } else {
     char buffer[BUFFER_SIZE] = {'\0'};
-    assert_m(info.symbols_count < (FORMAT_BUF_SIZE - 1)) char format_buf[BUFFER_SIZE] = {'\0'};
+    assert_m(info.symbols_count < (FORMAT_BUF_SIZE - 1));
+    char format_buf[BUFFER_SIZE] = {'\0'};
     strncpy(format_buf, format, info.symbols_count + 1);
-
-    if (info.type == 'f') {
-      if (strcmp(info.length_mod, "l") == 0 || strcmp(info.length_mod, "") == 0)
-        sprintf(buffer, format_buf, va_arg(list->list, double));
-      else
-        panic("Unsupported format: %%%s%c", info.length_mod, info.type);
-    } else if (info.type == 'c') {
-      sprintf(buffer, format_buf, va_arg(list->list, int));
-    } else if (info.type == 'p') {
-      void* ptr = va_arg(list->list, void*);
-      sprintf(buffer, format_buf, ptr);
-    } else if (info.type == 'd' || info.type == 'i' || info.type == 'u') {
-      if (strcmp(info.length_mod, "l") == 0) {
-        sprintf(buffer, format_buf, va_arg(list->list, long));
-      } 
-      else if (strcmp(info.length_mod, "ll") == 0) {
-        sprintf(buffer, format_buf, va_arg(list->list, long long));
-      } 
-      else if (strcmp(info.length_mod, "") == 0) {
-        sprintf(buffer, format_buf, va_arg(list->list, int));
-      } 
-      else if (strcmp(info.length_mod, "zu") == 0 || strcmp(info.length_mod, "z") == 0) {
-        sprintf(buffer, format_buf, va_arg(list->list, size_t));
-      }
-      
-      else {
-        panic("Unsupported format: %%%s%c", info.length_mod, info.type);
-      }
-    } else {
-      panic("Unsupported format (%s): '%s' '%c'", format, info.length_mod,
-            info.type);
-    }
+    vsprintf(buffer, format_buf, list->list);
 
     outstream_puts(buffer, stream);
     (*total_written) += strlen(buffer);
