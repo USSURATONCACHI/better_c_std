@@ -8,12 +8,12 @@
 #include <better_c_std/string/str_t_raw.h>
 
 typedef struct OutStreamVtable {
-  int (*putc)(void* this, int);
-  int (*puts)(void* this, const char* str);
-  int (*put_slice)(void* this, const char* str, size_t length);
+  int (*putc)(void* tthis, int);
+  int (*puts)(void* tthis, const char* str);
+  int (*put_slice)(void* tthis, const char* str, size_t length);
 
-  size_t (*get_available_size)(void* this);
-  str_t (*description)(void* this);
+  size_t (*get_available_size)(void* tthis);
+  str_t (*description)(void* tthis);
 } OutStreamVtable;
 
 typedef struct OutStream {
@@ -21,14 +21,14 @@ typedef struct OutStream {
   const OutStreamVtable* vtable;
 } OutStream;
 
-int outstream_putc(int c, OutStream this);
-int outstream_puts(const char* string, OutStream this);
-int outstream_put_slice(const char* string, size_t length, OutStream this);
-size_t outstream_available_space(OutStream this);
-str_t outstream_description(OutStream this);
+int outstream_putc(int c, OutStream tthis);
+int outstream_puts(const char* string, OutStream tthis);
+int outstream_put_slice(const char* string, size_t length, OutStream tthis);
+size_t outstream_available_space(OutStream tthis);
+str_t outstream_description(OutStream tthis);
 
-void outstream_x_vprintf(OutStream this, va_list list);
-void outstream_x_printf(OutStream this, ...);
+void outstream_x_vprintf(OutStream tthis, va_list list);
+void outstream_x_printf(OutStream tthis, ...);
 
 OutStream outstream_from_file(FILE* file);
 OutStream outstream_stdout();
