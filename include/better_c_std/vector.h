@@ -40,8 +40,10 @@
 #endif
 
 #ifdef VECTOR_MAKE_STATIC
+#undef VEC_STATIC_PREFIX
 #define VEC_STATIC_PREFIX static
 #else
+#undef VEC_STATIC_PREFIX
 #define VEC_STATIC_PREFIX
 #endif
 #include <stddef.h>
@@ -50,16 +52,16 @@
 #include <better_c_std/prettify/misc.h>
 
 #ifdef VECTOR_H
-#define VEC_T CONCAT(vec_, VECTOR_H)
-#define ITEM_T VECTOR_H
+  #define VEC_T CONCAT(vec_, VECTOR_H)
+  #define ITEM_T VECTOR_H
 #else
-#ifdef VECTOR_C
-#define VEC_T CONCAT(vec_, VECTOR_C)
-#define ITEM_T VECTOR_C
-#else
-#define VEC_T CONCAT(vec_, VECTOR_ITEM_TYPE)
-#define ITEM_T VECTOR_ITEM_TYPE
-#endif
+  #ifdef VECTOR_C
+    #define VEC_T CONCAT(vec_, VECTOR_C)
+    #define ITEM_T VECTOR_C
+  #else
+    #define VEC_T CONCAT(vec_, VECTOR_ITEM_TYPE)
+    #define ITEM_T VECTOR_ITEM_TYPE
+  #endif
 #endif
 
 #ifndef VECTOR_NO_HEADERS
