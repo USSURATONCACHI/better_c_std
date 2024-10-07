@@ -9,9 +9,11 @@ typedef void (*PrinterFn)(OutStream stream, VaListWrap* list,
 
 static void printer_slice(OutStream stream, VaListWrap* list,
                           int* total_written);
+static void printer_printable(OutStream stream, VaListWrap* list,
+                              int* total_written);
 
-#define FORMATS { "$slice" }
-#define PRINTERS { printer_slice }
+#define FORMATS { "$slice", "$printable" }
+#define PRINTERS { printer_slice, printer_printable }
 
 int x_printf_ext_fmt_length(const char* format) {
   if (format[0] == '\0') return 0;

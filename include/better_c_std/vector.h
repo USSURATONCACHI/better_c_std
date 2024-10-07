@@ -14,6 +14,9 @@
 
 // input macto: VECTOR_ITEM_CLONE
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 #ifdef VECTOR_H
 #define VECTOR_ITEM_TYPE VECTOR_H
 #undef VECTOR_IMPLEMENTATION
@@ -67,8 +70,8 @@
 #ifndef VECTOR_NO_HEADERS
 typedef struct {
   VECTOR_ITEM_TYPE* data;
-  int length;
-  int capacity;
+  size_t length;
+  size_t capacity;
 } VEC_T;
 #endif
 
@@ -93,20 +96,20 @@ typedef struct {
 // Function declarations
 #ifndef VECTOR_NO_HEADERS
 VEC_STATIC_PREFIX VEC_T VEC_CREATE();
-VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(int cap);
-VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, int length);
+VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap);
+VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, size_t length);
 VEC_STATIC_PREFIX VEC_T VEC_CLONE(const VEC_T* source);
-VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, int length);
+VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, size_t length);
 VEC_STATIC_PREFIX void VEC_PUSH(VEC_T* vec, ITEM_T item);
-VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, int index);
+VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, size_t index);
 VEC_STATIC_PREFIX ITEM_T VEC_POPGET(VEC_T* vec);
 VEC_STATIC_PREFIX void VEC_POPFREE(VEC_T* vec);
-VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, int i);
-VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, int i);
-VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, int i);
-VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, int i);
-VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, int i);
-VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, int i);
+VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, size_t i);
+VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, size_t i);
+VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, size_t i);
+VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, size_t i);
+VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, size_t i);
+VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, size_t i);
 VEC_STATIC_PREFIX void VEC_FREE(VEC_T v);
 #endif
 
@@ -120,11 +123,9 @@ VEC_STATIC_PREFIX VEC_T VEC_CREATE() {
   };
 }
 
-VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(int cap) {
+VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap) {
   if (cap == 0)
     return VEC_CREATE();
-  else if (cap < 0)
-    panic("Cannot create vector with negative capacity (%d)", cap);
 
   VEC_T result;
 
@@ -136,12 +137,12 @@ VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(int cap) {
   return result;
 }
 
-VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, int length) {
+VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, size_t length) {
   VEC_T result;
 
   result.data = (ITEM_T*)VECTOR_MALLOC_FN(sizeof(ITEM_T) * length);
 #ifdef VECTOR_ITEM_CLONE
-  for (int i = 0; i < length; i++) {
+  for (size_t i = 0; i < length; i++) {
     result.data[i] = VECTOR_ITEM_CLONE(&source[i]);
   }
 #else
@@ -157,7 +158,7 @@ VEC_STATIC_PREFIX VEC_T VEC_CLONE(const VEC_T* source) {
   return VEC_CREATE_COPY(source->data, source->length);
 }
 
-VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, int length) {
+VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, size_t length) {
   return (VEC_T){
       .data = source,
       .length = length,
@@ -168,12 +169,12 @@ VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, int length) {
 #ifdef DEBUG
 #define CHECK_LEN_ZERO(vec)                                       \
   if ((vec)->length <= 0)                                         \
-    panic("%s (at %p) is empty, it's length is %d\n", STR(VEC_T), \
+    panic("%s (at %p) is empty, it's length is %zu\n", STR(VEC_T), \
           (void*)(vec), (vec)->length);
 
 #define CHECK_INDEX(vec, index)                                           \
   if (index >= (vec)->length)                                             \
-    panic("%s (at %p) index is out of bounds. Index = %d, length = %d\n", \
+    panic("%s (at %p) index is out of bounds. Index = %zu, length = %zu\n", \
           STR(VEC_T), (void*)(vec), index, (vec)->length);
 #else
 #define CHECK_LEN_ZERO(vec) \
@@ -187,14 +188,13 @@ VEC_STATIC_PREFIX void VEC_PUSH(VEC_T* vec, ITEM_T item) {
   if (vec->length > vec->capacity) {
 #ifdef DEBUG
     panic(
-        "Absurd situation: vector length (%d) is bigger than it's capacity "
-        "(%d)\n",
+        "Absurd situation: vector length (%zu) is bigger than it's capacity (%zu)\n",
         vec->length, vec->capacity);
 #else
     unreachable();
 #endif
   } else if (vec->length == vec->capacity) {
-    int new_cap = vec->length * 3 / 2 + 4;
+    size_t new_cap = vec->length * 3 / 2 + 4;
 #ifdef VECTOR_REALLOC_FN
     ITEM_T* new_data =
         (ITEM_T*)VECTOR_REALLOC_FN(vec->data, sizeof(ITEM_T) * new_cap);
@@ -212,14 +212,14 @@ VEC_STATIC_PREFIX void VEC_PUSH(VEC_T* vec, ITEM_T item) {
   vec->length++;
 }
 
-VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, int index) {
+VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, size_t index) {
   if (index == vec->length) {
     VEC_PUSH(vec, item);
   } else {
     CHECK_INDEX(vec, index);
     ITEM_T tmp = vec->data[index];
     vec->data[index] = item;
-    for (int i = index + 1; i < vec->length; i++) {
+    for (size_t i = index + 1; i < vec->length; i++) {
       ITEM_T tmp2 = vec->data[i];
       vec->data[i] = tmp;
       tmp = tmp2;
@@ -243,16 +243,16 @@ VEC_STATIC_PREFIX void VEC_POPFREE(VEC_T* vec) {
 #endif
 }
 
-VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, size_t i) {
   CHECK_INDEX(vec, i);
   return vec->data[i];
 }
-VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, size_t i) {
   CHECK_INDEX(vec, i);
   return &vec->data[i];
 }
 
-VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, size_t i) {
   CHECK_LEN_ZERO(vec);
   CHECK_INDEX(vec, i);
 
@@ -262,18 +262,18 @@ VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, int i) {
   return item;
 }
 
-VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, size_t i) {
   CHECK_LEN_ZERO(vec);
   CHECK_INDEX(vec, i);
 
   ITEM_T item = vec->data[i];
-  for (int index = i; index < vec->length - 1; index++)
+  for (size_t index = i; index < vec->length - 1; index++)
     vec->data[index] = vec->data[index + 1];
   vec->length--;
   return item;
 }
 
-VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, size_t i) {
   CHECK_LEN_ZERO(vec);
   CHECK_INDEX(vec, i);
 
@@ -283,7 +283,7 @@ VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, int i) {
   vec->data[i] = vec->data[vec->length - 1];
   vec->length--;
 }
-VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, int i) {
+VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, size_t i) {
   CHECK_LEN_ZERO(vec);
   CHECK_INDEX(vec, i);
 
@@ -292,20 +292,20 @@ VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, int i) {
 #endif
 
   vec->length--;
-  for (int index = i; index < vec->length; index++) {
+  for (size_t index = i; index < vec->length; index++) {
     vec->data[index] = vec->data[index + 1];
   }
 }
 
 VEC_STATIC_PREFIX void VEC_FREE(VEC_T v) {
 #ifdef VECTOR_ITEM_DESTRUCTOR
-  for (int i = 0; i < v.length; i++) VECTOR_ITEM_DESTRUCTOR(v.data[i]);
+  for (size_t i = 0; i < v.length; i++) VECTOR_ITEM_DESTRUCTOR(v.data[i]);
 #endif
 
   if (v.data) VECTOR_FREE_FN(v.data);
 
 #ifdef DEBUG
-  printf("Deleted " STR(VEC_T) " at %p (length %d)\n", (void*)v, v->length);
+  printf("Deleted " STR(VEC_T) " at %p (length %zu)\n", (void*)v, v->length);
 #endif
 }
 
@@ -320,3 +320,4 @@ VEC_STATIC_PREFIX void VEC_FREE(VEC_T v) {
 #undef VECTOR_C
 #undef VEC_T
 #undef ITEM_T
+#pragma GCC diagnostic pop

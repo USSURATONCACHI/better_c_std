@@ -1,7 +1,10 @@
 #include <better_c_std/io.h>
 #include <better_c_std/string.h>
+#include <better_c_std/prettify.h>
 
 int main(int argc, char** argv) {
+    unused(argv);
+
     str_t s1 = str_owned("Hello, world");
     str_t s2 = str_owned("Program has %d args", argc);
     str_t s3 = str_literal("This string does not introduce allocations");

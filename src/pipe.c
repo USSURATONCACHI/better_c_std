@@ -2,6 +2,7 @@
 #include <string.h>
 #include <better_c_std/pipe.h>
 #include <better_c_std/string/str_t.h>
+#include <better_c_std/prettify.h>
 
 #ifdef _WIN32
 BcstdPipe BcstdPipe_open() {
@@ -62,7 +63,7 @@ static size_t stream_get_available_size(BcstdPipeHandle* this);
 static str_t  stream_description       (BcstdPipeHandle* this);
 
 static const OutStreamVtable* get_stream_vtable() {
-    const static OutStreamVtable vtable = {
+    static const OutStreamVtable vtable = {
         .putc = (void*) stream_putc,
         .puts = (void*) stream_puts,
         .put_slice = (void*) stream_put_slice,
@@ -100,9 +101,11 @@ static int stream_put_slice(BcstdPipeHandle* pipe, const char* str, size_t lengt
     return '\n';
 }
 static size_t stream_get_available_size(BcstdPipeHandle* pipe) {
+    unused(pipe);
     return SIZE_MAX;
 }
-static str_t stream_description(BcstdPipeHandle* this) {
+static str_t stream_description(BcstdPipeHandle* pipe) {
+    unused(pipe);
     #ifdef _WIN32
         return str_literal("better_c_std Win32 pipe");
     #else
