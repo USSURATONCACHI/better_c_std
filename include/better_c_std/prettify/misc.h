@@ -3,6 +3,13 @@
 
 #define unreachable() __builtin_unreachable()
 #define forget(value)
+
+// Suppresses warning about unused variable.
+//
+// Removing argument names, like this...:
+//    void f(void*)
+//    ------------^
+// ...is not yet an official thing in C11.
 #define unused(var) var = var
 
 #define CONCAT2(s1, s2) s1##s2
