@@ -83,6 +83,7 @@
 	// Names of functions
 	#define VEC_CREATE CONCAT(VEC_T, _create)
 	#define VEC_WITH_CAPACITY CONCAT(VEC_T, _with_capacity)
+	#define VEC_WITH_CAPACITY_TRY CONCAT(VEC_T, _with_capacity_try)
 	#define VEC_CREATE_COPY CONCAT(VEC_T, _create_copy)
 	#define VEC_CLONE CONCAT(VEC_T, _clone)
 	#define VEC_FROM_RAW CONCAT(VEC_T, _from_raw)
@@ -100,22 +101,23 @@
 
 	// Function declarations
 	#ifndef VECTOR_NO_HEADERS
-		VEC_STATIC_PREFIX VEC_T   VEC_CREATE       ();
-		VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY(size_t cap);
-		VEC_STATIC_PREFIX VEC_T   VEC_CREATE_COPY  (const ITEM_T* source, size_t length);
-		VEC_STATIC_PREFIX VEC_T   VEC_CLONE        (const VEC_T* source);
-		VEC_STATIC_PREFIX VEC_T   VEC_FROM_RAW     (ITEM_T* source, size_t length);
-		VEC_STATIC_PREFIX void    VEC_PUSH         (VEC_T* vec, ITEM_T item);
-		VEC_STATIC_PREFIX void    VEC_INSERT       (VEC_T* vec, ITEM_T item, size_t index);
-		VEC_STATIC_PREFIX ITEM_T  VEC_POPGET       (VEC_T* vec);
-		VEC_STATIC_PREFIX void    VEC_POPFREE      (VEC_T* vec);
-		VEC_STATIC_PREFIX ITEM_T  VEC_AT           (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T* VEC_ATREF        (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_FAST (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_ORDER(VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_DELETE_FAST  (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_DELETE_ORDER (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_FREE         (VEC_T v);
+		VEC_STATIC_PREFIX VEC_T   VEC_CREATE           ();
+		VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY    (size_t cap);
+		VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY_TRY(size_t cap);
+		VEC_STATIC_PREFIX VEC_T   VEC_CREATE_COPY      (const ITEM_T* source, size_t length);
+		VEC_STATIC_PREFIX VEC_T   VEC_CLONE            (const VEC_T* source);
+		VEC_STATIC_PREFIX VEC_T   VEC_FROM_RAW         (ITEM_T* source, size_t length);
+		VEC_STATIC_PREFIX void    VEC_PUSH             (VEC_T* vec, ITEM_T item);
+		VEC_STATIC_PREFIX void    VEC_INSERT           (VEC_T* vec, ITEM_T item, size_t index);
+		VEC_STATIC_PREFIX ITEM_T  VEC_POPGET           (VEC_T* vec);
+		VEC_STATIC_PREFIX void    VEC_POPFREE          (VEC_T* vec);
+		VEC_STATIC_PREFIX ITEM_T  VEC_AT               (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX ITEM_T* VEC_ATREF            (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_FAST     (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_ORDER    (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX void    VEC_DELETE_FAST      (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX void    VEC_DELETE_ORDER     (VEC_T* vec, size_t i);
+		VEC_STATIC_PREFIX void    VEC_FREE             (VEC_T v);
 	#endif
 
 	#ifdef VECTOR_IMPLEMENTATION
@@ -128,17 +130,22 @@
 			};
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap) {
+		VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY_TRY(size_t cap) {
 			if (cap == 0)
 				return VEC_CREATE();
 
 			VEC_T result;
 
 			result.data = (ITEM_T*)VECTOR_MALLOC_FN(sizeof(ITEM_T) * cap);
-			assert_alloc(result.data);
 			result.length = 0;
-			result.capacity = cap;
+			result.capacity = result.data == NULL ? 0 : cap;
 
+			return result;
+		}
+
+		VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap) {
+			VEC_T result = VEC_WITH_CAPACITY_TRY (cap);
+			assert_m(result.capacity == cap);
 			return result;
 		}
 
@@ -319,6 +326,7 @@
 
 	#undef VEC_CREATE
 	#undef VEC_WITH_CAPACITY
+	#undef VEC_WITH_CAPACITY_TRY
 	#undef VEC_CREATE_COPY
 	#undef VEC_CLONE
 	#undef VEC_FROM_RAW
