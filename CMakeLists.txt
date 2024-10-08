@@ -12,6 +12,7 @@ add_library(s21_ussur_better_c_std SHARED
     src/debug.c
     src/printf_extensions.c
     src/pipe.c
+    src/time.c
 
     src/string/str_slice.c
     src/string/str_t.c
@@ -20,6 +21,8 @@ add_library(s21_ussur_better_c_std SHARED
     src/io/out_stream.c
     src/io/printable.c
     src/io/x_printf.c
+
+    src/camera/camera.c
 )
 
 target_include_directories(s21_ussur_better_c_std PUBLIC include)
