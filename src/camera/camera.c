@@ -1,4 +1,5 @@
 #include <better_c_std/camera/camera.h>
+#include <better_c_std/prettify/debug.h>
 #include <math.h>
 #include <float.h>
 
@@ -56,7 +57,7 @@ long double BcstdCamera_get_y(const BcstdCamera* self) {
 long double BcstdCamera_get_zoom(const BcstdCamera* self) {
     return BcstdIntgrExpValue_get_pos(self->zoom, BcstdCamera_get_time(self));
 }
-long double BcstdCamera_unit_size(const BcstdCamera* self) {
+long double BcstdCamera_get_unit_size(const BcstdCamera* self) {
     return powl(2.0, BcstdCamera_get_zoom(self)); // more zoom = closer
 }
 

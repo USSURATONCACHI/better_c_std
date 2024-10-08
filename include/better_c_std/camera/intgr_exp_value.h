@@ -2,6 +2,7 @@
 #define BETTER_C_STD_CAMERA_INTGR_EXP_VALUE_H_
 
 #include <better_c_std/time.h>
+#include <better_c_std/prettify/debug.h>
 #include <math.h>
 
 // Mathematical abstraction over exponential velocities
@@ -30,7 +31,7 @@ static inline BcstdIntgrExpValue BcstdIntgrExpValue_from_exponent(long double ex
 static inline long double BcstdIntgrExpValue_get_vel(BcstdIntgrExpValue val, BcstdTime now) {
     BcstdTime time_diff = BcstdTime_diff(now, val.start_time);
     long double t = BcstdTime_to_ldouble_secs_imprecise(time_diff);
-    return val.v0 + powl(val.exponent, t);
+    return val.v0 * powl(val.exponent, t);
 }
 
 static inline long double BcstdIntgrExpValue_get_pos(BcstdIntgrExpValue val, BcstdTime now) {

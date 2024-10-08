@@ -42,7 +42,7 @@ typedef struct {
 } BcstdCamera;
 
 // How much velocity drops each second
-#define BcstdCamera_DEFAULT_EXPONENT 0.1
+#define BcstdCamera_DEFAULT_EXPONENT 0.001
 
 BcstdCamera BcstdCamera_create();
 
@@ -56,7 +56,7 @@ BcstdTime BcstdCamera_get_time(const BcstdCamera* self);
 long double BcstdCamera_get_x(const BcstdCamera* self);
 long double BcstdCamera_get_y(const BcstdCamera* self);
 long double BcstdCamera_get_zoom(const BcstdCamera* self);
-long double BcstdCamera_unit_size(const BcstdCamera* self);
+long double BcstdCamera_get_unit_size(const BcstdCamera* self);
 
 long double BcstdCamera_get_vel_x(const BcstdCamera* self);
 long double BcstdCamera_get_vel_y(const BcstdCamera* self);
