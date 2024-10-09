@@ -8,6 +8,7 @@ option(BCSTD_BUILD_EXAMPLES "Build examples?" ON)
 
 add_library(s21_ussur_better_c_std SHARED
     src/allocator.c
+    src/mem_region.c
     src/common_vecs.c
     src/debug.c
     src/printf_extensions.c
