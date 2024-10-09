@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <better_c_std/io/out_stream.h>
+#include <better_c_std/result.h>
 
 #ifdef _WIN32
     #include <windows.h>
@@ -23,13 +24,7 @@ typedef struct {
     BcstdPipeHandle write;
 } BcstdPipe;
 
-typedef struct  {
-    bool is_ok;
-    union {
-        BcstdPipe ok;
-        str_t error;
-    };
-} BcstdPipeResult;
+typedef STRUCT_RESULT(BcstdPipe, str_t) BcstdPipeResult;
 
 BcstdPipeResult BcstdPipe_open();
 void BcstdPipe_close(BcstdPipe pipe);
