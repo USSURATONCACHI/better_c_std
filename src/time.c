@@ -93,6 +93,30 @@ BcstdTime BcstdTime_sum(BcstdTime lhs, BcstdTime rhs) {
     return BcstdTime_normalize(sum);
 }
 
+
+bool BcstdTime_is_greater(BcstdTime lhs, BcstdTime rhs) {
+    lhs = BcstdTime_normalize(lhs);
+    rhs = BcstdTime_normalize(rhs);
+    
+    if (lhs.seconds > rhs.seconds)
+        return true;
+    else if (lhs.seconds < rhs.seconds)
+        return false;
+
+    return lhs.nanos > rhs.nanos;
+}
+bool BcstdTime_is_less(BcstdTime lhs, BcstdTime rhs) {
+    lhs = BcstdTime_normalize(lhs);
+    rhs = BcstdTime_normalize(rhs);
+
+    if (lhs.seconds < rhs.seconds)
+        return true;
+    else if (lhs.seconds > rhs.seconds)
+        return false;
+
+    return lhs.nanos < rhs.nanos;
+}
+
 long double BcstdTime_to_ldouble_secs_imprecise(BcstdTime t) {
     long double secs = t.seconds;
     long double nanos = t.nanos;
