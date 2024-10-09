@@ -1,5 +1,5 @@
-#ifndef BETTER_STRING_STRING_STREAM_H_
-#define BETTER_STRING_STRING_STREAM_H_
+#ifndef BETTERC_STD_STRING_STRING_STREAM_H_
+#define BETTERC_STD_STRING_STRING_STREAM_H_
 
 #include <stdint.h>
 
@@ -20,4 +20,4 @@ OutStream string_stream_stream(StringStream* tthis);
 char* string_stream_collect(StringStream tthis);
 str_t string_stream_to_str_t(StringStream tthis);
 
-#endif  // BETTER_STRING_STRING_STREAM_H_
+#endif  // BETTERC_STD_STRING_STRING_STREAM_H_

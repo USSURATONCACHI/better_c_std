@@ -22,7 +22,7 @@
 // Not gonna bother explaining all the exponential and logarithmic math behind it, btw.
 
 typedef struct {
-    // All these values only update when you call setters or event functions (`MgCameraModel_on_` and `update_anim`).
+    // All these values only update when you call setters or event functions (`MgCameraModel_on_` and `_update_anim`).
     // These are not real-time. For real-time values, use getter functions.
     BcstdIntgrExpValue x;
     BcstdIntgrExpValue y;

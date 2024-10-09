@@ -79,7 +79,7 @@ BcstdTime BcstdTime_diff(BcstdTime lhs, BcstdTime rhs) {
         diff.nanos = nanos_diff;
     } else {
         // No need for mod operator, we won't have more than 1-second overflow
-        diff.nanos = nanos_diff + NANOS_IN_A_SECOND;
+        diff.nanos = nanos_diff + (int64_t) NANOS_IN_A_SECOND;
         diff.seconds -= 1;
     }
 

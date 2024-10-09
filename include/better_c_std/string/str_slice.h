@@ -1,7 +1,8 @@
-#ifndef SRC_PARSER_STR_SLICE_H_
-#define SRC_PARSER_STR_SLICE_H_
+#ifndef BETTER_C_STD_STRING_STR_SLICE_H_
+#define BETTER_C_STD_STRING_STR_SLICE_H_
 
-#include "str_t.h"
+#include <stdbool.h>
+#include <better_c_std/string/str_t_raw.h>
 
 typedef struct StrSlice {
   const char* start;
@@ -14,6 +15,4 @@ str_t str_slice_to_owned(StrSlice slice);
 StrSlice str_slice_from_string(const char* str);
 StrSlice str_slice_from_str_t(const str_t* str);
 
-bool str_slice_eq_ccp(StrSlice slice, const char* string);
-
-#endif  // SRC_PARSER_STR_SLICE_H_
+#endif  // BETTER_C_STD_STRING_STR_SLICE_H_

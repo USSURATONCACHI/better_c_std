@@ -1,9 +1,9 @@
-#ifndef VEC_STR_T_H_
-#define VEC_STR_T_H_
+#ifndef BETTER_C_STD_STRING_VEC_STR_T_H_
+#define BETTER_C_STD_STRING_VEC_STR_T_H_
 
-#include "str_t.h"
+#include <better_c_std/string/str_t_raw.h>
 
-#define VECTOR_H str_t
+#define VECTOR_ITEM_TYPE str_t
 #include <better_c_std/vector.h>
 
-#endif  // VEC_STR_T_H_
+#endif  // BETTER_C_STD_STRING_VEC_STR_T_H_

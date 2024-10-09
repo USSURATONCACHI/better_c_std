@@ -11,7 +11,10 @@ typedef struct {
 } BcstdTime;
 
 BcstdTime BcstdTime_now_unix();
+
+// Checks if `BcstdTime` has too much nanos (>1s equivalent) and converts that overflow into seconds
 BcstdTime BcstdTime_normalize(BcstdTime t);
+
 BcstdTime BcstdTime_diff(BcstdTime lhs, BcstdTime rhs);
 BcstdTime BcstdTime_sum(BcstdTime lhs, BcstdTime rhs);
 

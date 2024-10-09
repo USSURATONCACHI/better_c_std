@@ -1,5 +1,5 @@
-#ifndef SRC_UTIL_OUT_STREAM_H_
-#define SRC_UTIL_OUT_STREAM_H_
+#ifndef BETTER_C_STD_IO_OUT_STREAM_H_
+#define BETTER_C_STD_IO_OUT_STREAM_H_
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -8,17 +8,17 @@
 #include <better_c_std/string/str_t_raw.h>
 
 typedef struct OutStreamVtable {
-  int (*putc)(void* tthis, int);
-  int (*puts)(void* tthis, const char* str);
-  int (*put_slice)(void* tthis, const char* str, size_t length);
+    int (*putc)(void* tthis, int);
+    int (*puts)(void* tthis, const char* str);
+    int (*put_slice)(void* tthis, const char* str, size_t length);
 
-  size_t (*get_available_size)(void* tthis);
-  str_t (*description)(void* tthis);
+    size_t (*get_available_size)(void* tthis);
+    str_t (*description)(void* tthis);
 } OutStreamVtable;
 
 typedef struct OutStream {
-  void* data;
-  const OutStreamVtable* vtable;
+    void* data;
+    const OutStreamVtable* vtable;
 } OutStream;
 
 int outstream_putc(int c, OutStream tthis);
@@ -35,10 +35,10 @@ OutStream outstream_stdout();
 OutStream outstream_stderr();
 
 typedef struct BufferOutStream {
-  char* buffer;
-  size_t length;
-  size_t pos;
+    char* buffer;
+    size_t length;
+    size_t pos;
 } BufferOutStream;
 OutStream outstream_from_buffer(BufferOutStream* b);
 
-#endif  // SRC_UTIL_OUT_STREAM_H_
+#endif  // BETTER_C_STD_IO_OUT_STREAM_H_

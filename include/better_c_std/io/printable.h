@@ -1,7 +1,7 @@
-#ifndef SRC_UTIL_PRINTABLE_H_
-#define SRC_UTIL_PRINTABLE_H_
+#ifndef BETTER_C_STD_IO_PRINTABLE_H_
+#define BETTER_C_STD_IO_PRINTABLE_H_
 
-#include "out_stream.h"
+#include <better_c_std/io/out_stream.h>
 
 typedef struct Printable {
   const void* data;
@@ -14,4 +14,4 @@ void printable_print_std(Printable this);
 Printable printable_string(const char* string);
 Printable printable_outstream(const OutStream* this);
 
-#endif  // SRC_UTIL_PRINTABLE_H_
+#endif  // BETTER_C_STD_IO_PRINTABLE_H_

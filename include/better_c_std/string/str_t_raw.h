@@ -1,5 +1,5 @@
-#ifndef STR_T_RAW_H_
-#define STR_T_RAW_H_
+#ifndef BETTER_C_STD_STRING_STR_T_RAW_H_
+#define BETTER_C_STD_STRING_STR_T_RAW_H_
 
 #include <stdbool.h>
 
@@ -11,4 +11,4 @@ typedef struct {
   bool is_owned;
 } str_t;
 
-#endif  // STR_T_RAW_H_
+#endif  // BETTER_C_STD_STRING_STR_T_RAW_H_

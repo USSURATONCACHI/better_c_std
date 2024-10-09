@@ -1,35 +1,113 @@
-/**
- * This header-only library allows to create template vectors in c.
- * Vectors can hold data with custom destructors. You can set
- * VECTOR_ITEM_DESTRUCTOR to the destructor.
+/*
+
+ /$$    /$$                      /$$                             /$$      
+| $$   | $$                     | $$                            | $$      
+| $$   | $$ /$$$$$$   /$$$$$$$ /$$$$$$    /$$$$$$   /$$$$$$     | $$$$$$$ 
+|  $$ / $$//$$__  $$ /$$_____/|_  $$_/   /$$__  $$ /$$__  $$    | $$__  $$
+ \  $$ $$/| $$$$$$$$| $$        | $$    | $$  \ $$| $$  \__/    | $$  \ $$
+  \  $$$/ | $$_____/| $$        | $$ /$$| $$  | $$| $$          | $$  | $$
+   \  $/  |  $$$$$$$|  $$$$$$$  |  $$$$/|  $$$$$$/| $$       /$$| $$  | $$
+    \_/    \_______/ \_______/   \___/   \______/ |__/      |__/|__/  |__/
+                                                                                
+This header-only utility allows to create "templated" vectors in pure C.
+You can also set custom destructors, copy constructors, and allocators.		
+
+Item type is defined by macro `VECTOR_ITEM_TYPE`. 
+It must be a single token without spaces or star symbols.
+For complex type names use typedefs: `typedef char* char_ptr;`.
+
+=============================
+=   Simplest usage example  = 
+=============================
+```C
+	#include <stdio.h>
+
+	#define VECTOR_ITEM_TYPE int
+	#define VECTOR_IMPLEMENTATION
+	#include <better_c_std/vector.h>
+
+	int main() {
+		vec_int my_ints = vec_int_create();
+
+		vec_int_push(&my_ints, 1);
+		vec_int_push(&my_ints, 2);
+
+		printf("%d\n", vec_int_popget(&my_ints)); // Output: 2
+		printf("%d\n", vec_int_popget(&my_ints)); // Output: 1
+
+		vec_int_free(my_ints); // pass by value to free
+	}
+```
+=============================
+=  All available functions  = (replace T with your type)
+=============================
+```
+	// Create & free
+	vec_T vec_T_create();         // Empty vector (this one does no allocations)
+	void  vec_T_free(vec_T v);    // If `VECTOR_ITEM_DESTRUCTOR` is specified - calls destructor for each item first. Then, frees the data buffer.
+
+	// Copying. 
+		// All of these function call `VECTOR_ITEM_CLONE_FN` to copy each element if it is defined.
+		// If copy constructor is not defined - they just `memcpy`.
+	vec_T vec_T_clone      (const vec_T* source);   
+	vec_T vec_T_create_copy(const T* source, size_t length);
+
+	// Other constructors
+	vec_T vec_T_from_raw   (T* source, size_t length); // Takes ownership of `T* source` and makes it it's own buffer
+	vec_T vec_T_with_capacity    (size_t cap);         // `panic`s and terminates the process if allocation fails.
+	vec_T vec_T_with_capacity_try(size_t cap);         // Like "_with_capacity", but will return vector with zero capacity, if allocation fails
+
+	// General methods
+	// `vec_T_popfree`, `vec_T_delete_fast`, `vec_T_delete_order` use destructor (`VECTOR_ITEM_DESTRUCTOR`) if provided.
+	void  vec_T_push         (vec_T* vec, T item);
+	void  vec_T_insert       (vec_T* vec, T item, size_t index);
+	T     vec_T_popget       (vec_T* vec);  // Extracts and returns the last element
+	void  vec_T_popfree      (vec_T* vec);  // Extracts and deletes the last element
+
+	T     vec_T_at           (vec_T* vec, size_t i); // Returns element by value, without modifying it
+	T*    vec_T_atref        (vec_T* vec, size_t i); // Returns pointer to an element 
+													// (pointer is invalidated after `_push` and `_insert`, possibly after `_extract_` and `_delete_` methods)
+
+	T     vec_T_extract_fast (vec_T* vec, size_t i); // O(1) - Extracts element and swaps with the last one
+	T     vec_T_extract_order(vec_T* vec, size_t i); // O(n) - Extracts element and preserves order of elements
+	void  vec_T_delete_fast  (vec_T* vec, size_t i); // O(1) - Deletes element and swaps with the last one
+	void  vec_T_delete_order (vec_T* vec, size_t i); // O(n) - Deletes element and preserves order of elements
+```
+
+======================
+=  All input macros  =
+======================
+
+	VECTOR_ITEM_TYPE <item_type> - specify item type to generate				  - default is undefined
+	VECTOR_IMPLEMENTATION        - flag to generate implementations for functions - default is undefined
+	VECTOR_NO_HEADERS            - flag to NOT generate headers                   - default is undefined
+	VECTOR_MAKE_STATIC           - flag to prefix all functions with `static`     - default is undefined
+
+	DEBUG                 - flag to `panic` instead of using `unreachable` - default is undefined
+	VECTOR_API [anything] - prepend all functions with whatever - default is empty
+	VECTOR_C <item_type>  - define only impls (no headers) for given vector - default is undefined
+
+	== Specify how to handle memory and your type with these macros:
+	VECTOR_MALLOC_FN       <void* fn(size_t)>         	(default is `malloc`)
+	VECTOR_FREE_FN         <void  fn(void*)>          	(default is `free`)
+	VECTOR_REALLOC_FN      <void* fn(void*, size_t)>  	(default is undefined)
+	VECTOR_ITEM_CLONE_FN   <T     fn(T)>              	(default is undefined)
+	VECTOR_ITEM_DESTRUCTOR <void  fn(T)>              	(default is undefined)
+
+
  */
  
-// Input macro: DEBUG - add `panic`s in unhappy paths
 
-// Input macro: VECTOR_H - define only headers for given vector
-// Input macro: VECTOR_C - define only impls (no headers) for given vector
-
-// Input macro: VECTOR_ITEM_TYPE      - generates vector for that item type
-// Input macro: VECTOR_IMPLEMENTATION - define to generate implementations for functions
-// Input macro: VECTOR_NO_HEADERS     - define to NOT generate headers
-// Input macro: VECTOR_MAKE_STATIC    - define to prefix all functions with `static`
-
-// == Specify how to handle memory and your type with these macros:
-// Input macro: VECTOR_MALLOC_FN        (default = malloc)
-// Input macro: VECTOR_FREE_FN          (default = free)
-// Input macro: VECTOR_REALLOC_FN       (default = None)
-// Input macro: VECTOR_ITEM_CLONE_FN    (default = None)
-// Input macro: VECTOR_ITEM_DESTRUCTOR  (default = None)
-
+// GCC does not fully understand what we are doing, so we heed to set this
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 
-#ifdef VECTOR_H
-	#define VECTOR_ITEM_TYPE VECTOR_H
+#ifndef VECTOR_API
+	#define VECTOR_API
 #endif
 
 #ifdef VECTOR_C
-	#define VECTOR_ITEM_TYPE VECTOR_H
+	#define VECTOR_ITEM_TYPE VECTOR_C
 	#define VECTOR_NO_HEADERS
 	#define VECTOR_IMPLEMENTATION
 #endif
@@ -59,17 +137,12 @@
 	#include <better_c_std/prettify/assert.h>
 	#include <better_c_std/prettify/misc.h>
 
-	#ifdef VECTOR_H
-		#define VEC_T CONCAT(vec_, VECTOR_H)
-		#define ITEM_T VECTOR_H
+	#ifdef VECTOR_C
+		#define VEC_T CONCAT(vec_, VECTOR_C)
+		#define ITEM_T VECTOR_C
 	#else
-		#ifdef VECTOR_C
-			#define VEC_T CONCAT(vec_, VECTOR_C)
-			#define ITEM_T VECTOR_C
-		#else
-			#define VEC_T CONCAT(vec_, VECTOR_ITEM_TYPE)
-			#define ITEM_T VECTOR_ITEM_TYPE
-		#endif
+		#define VEC_T CONCAT(vec_, VECTOR_ITEM_TYPE)
+		#define ITEM_T VECTOR_ITEM_TYPE
 	#endif
 
 	#ifndef VECTOR_NO_HEADERS
@@ -101,28 +174,28 @@
 
 	// Function declarations
 	#ifndef VECTOR_NO_HEADERS
-		VEC_STATIC_PREFIX VEC_T   VEC_CREATE           ();
-		VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY    (size_t cap);
-		VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY_TRY(size_t cap);
-		VEC_STATIC_PREFIX VEC_T   VEC_CREATE_COPY      (const ITEM_T* source, size_t length);
-		VEC_STATIC_PREFIX VEC_T   VEC_CLONE            (const VEC_T* source);
-		VEC_STATIC_PREFIX VEC_T   VEC_FROM_RAW         (ITEM_T* source, size_t length);
-		VEC_STATIC_PREFIX void    VEC_PUSH             (VEC_T* vec, ITEM_T item);
-		VEC_STATIC_PREFIX void    VEC_INSERT           (VEC_T* vec, ITEM_T item, size_t index);
-		VEC_STATIC_PREFIX ITEM_T  VEC_POPGET           (VEC_T* vec);
-		VEC_STATIC_PREFIX void    VEC_POPFREE          (VEC_T* vec);
-		VEC_STATIC_PREFIX ITEM_T  VEC_AT               (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T* VEC_ATREF            (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_FAST     (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_ORDER    (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_DELETE_FAST      (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_DELETE_ORDER     (VEC_T* vec, size_t i);
-		VEC_STATIC_PREFIX void    VEC_FREE             (VEC_T v);
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_CREATE           ();
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY    (size_t cap);
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_WITH_CAPACITY_TRY(size_t cap);
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_CREATE_COPY      (const ITEM_T* source, size_t length);
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_CLONE            (const VEC_T* source);
+		VECTOR_API VEC_STATIC_PREFIX VEC_T   VEC_FROM_RAW         (ITEM_T* source, size_t length);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_PUSH             (VEC_T* vec, ITEM_T item);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_INSERT           (VEC_T* vec, ITEM_T item, size_t index);
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T  VEC_POPGET           (VEC_T* vec);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_POPFREE          (VEC_T* vec);
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T  VEC_AT               (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T* VEC_ATREF            (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_FAST     (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T  VEC_EXTRACT_ORDER    (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_DELETE_FAST      (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_DELETE_ORDER     (VEC_T* vec, size_t i);
+		VECTOR_API VEC_STATIC_PREFIX void    VEC_FREE             (VEC_T v);
 	#endif
 
 	#ifdef VECTOR_IMPLEMENTATION
 		// Implementations
-		VEC_STATIC_PREFIX VEC_T VEC_CREATE() {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_CREATE() {
 			return (VEC_T){
 					.data = NULL,
 					.length = 0,
@@ -130,7 +203,7 @@
 			};
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY_TRY(size_t cap) {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY_TRY(size_t cap) {
 			if (cap == 0)
 				return VEC_CREATE();
 
@@ -143,13 +216,13 @@
 			return result;
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap) {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_WITH_CAPACITY(size_t cap) {
 			VEC_T result = VEC_WITH_CAPACITY_TRY (cap);
 			assert_m(result.capacity == cap);
 			return result;
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, size_t length) {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_CREATE_COPY(const ITEM_T* source, size_t length) {
 			VEC_T result;
 
 			result.data = (ITEM_T*)VECTOR_MALLOC_FN(sizeof(ITEM_T) * length);
@@ -166,11 +239,11 @@
 			return result;
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_CLONE(const VEC_T* source) {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_CLONE(const VEC_T* source) {
 			return VEC_CREATE_COPY(source->data, source->length);
 		}
 
-		VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, size_t length) {
+		VECTOR_API VEC_STATIC_PREFIX VEC_T VEC_FROM_RAW(ITEM_T* source, size_t length) {
 			return (VEC_T){
 					.data = source,
 					.length = length,
@@ -196,7 +269,7 @@
 				if (index >= (vec)->length) unreachable();
 		#endif
 
-		VEC_STATIC_PREFIX void VEC_PUSH(VEC_T* vec, ITEM_T item) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_PUSH(VEC_T* vec, ITEM_T item) {
 			if (vec->length > vec->capacity) {
 				#ifdef DEBUG
 					panic("Absurd situation: vector length (%zu) is bigger than it's capacity (%zu)\n",
@@ -223,7 +296,7 @@
 			vec->length++;
 		}
 
-		VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, size_t index) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_INSERT(VEC_T* vec, ITEM_T item, size_t index) {
 			if (index == vec->length) {
 				VEC_PUSH(vec, item);
 			} else {
@@ -239,13 +312,13 @@
 			}
 		}
 
-		VEC_STATIC_PREFIX ITEM_T VEC_POPGET(VEC_T* vec) {
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T VEC_POPGET(VEC_T* vec) {
 			CHECK_LEN_ZERO(vec);
 			vec->length--;
 			return vec->data[vec->length];
 		}
 
-		VEC_STATIC_PREFIX void VEC_POPFREE(VEC_T* vec) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_POPFREE(VEC_T* vec) {
 			CHECK_LEN_ZERO(vec);
 			vec->length--;
 
@@ -254,16 +327,16 @@
 			#endif
 		}
 
-		VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T VEC_AT(VEC_T* vec, size_t i) {
 			CHECK_INDEX(vec, i);
 			return vec->data[i];
 		}
-		VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T* VEC_ATREF(VEC_T* vec, size_t i) {
 			CHECK_INDEX(vec, i);
 			return &vec->data[i];
 		}
 
-		VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_FAST(VEC_T* vec, size_t i) {
 			CHECK_LEN_ZERO(vec);
 			CHECK_INDEX(vec, i);
 
@@ -273,7 +346,7 @@
 			return item;
 		}
 
-		VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX ITEM_T VEC_EXTRACT_ORDER(VEC_T* vec, size_t i) {
 			CHECK_LEN_ZERO(vec);
 			CHECK_INDEX(vec, i);
 
@@ -284,7 +357,7 @@
 			return item;
 		}
 
-		VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_DELETE_FAST(VEC_T* vec, size_t i) {
 			CHECK_LEN_ZERO(vec);
 			CHECK_INDEX(vec, i);
 
@@ -294,7 +367,7 @@
 			vec->data[i] = vec->data[vec->length - 1];
 			vec->length--;
 		}
-		VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, size_t i) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_DELETE_ORDER(VEC_T* vec, size_t i) {
 			CHECK_LEN_ZERO(vec);
 			CHECK_INDEX(vec, i);
 
@@ -308,7 +381,7 @@
 			}
 		}
 
-		VEC_STATIC_PREFIX void VEC_FREE(VEC_T v) {
+		VECTOR_API VEC_STATIC_PREFIX void VEC_FREE(VEC_T v) {
 			#ifdef VECTOR_ITEM_DESTRUCTOR
 				for (size_t i = 0; i < v.length; i++) VECTOR_ITEM_DESTRUCTOR(v.data[i]);
 			#endif
@@ -351,7 +424,6 @@
 #undef VECTOR_NO_HEADERS
 #undef VECTOR_IMPLEMENTATION
 #undef VECTOR_MAKE_STATIC
-#undef VECTOR_H
 #undef VECTOR_C
 
 

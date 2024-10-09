@@ -25,6 +25,8 @@ add_library(s21_ussur_better_c_std SHARED
     src/camera/camera.c
 )
 
+target_link_libraries(s21_ussur_better_c_std PUBLIC m)
+
 target_include_directories(s21_ussur_better_c_std PUBLIC include)
 
 include(GNUInstallDirs)
