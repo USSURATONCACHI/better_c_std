@@ -30,7 +30,4 @@ BcstdPipeResult BcstdPipe_open();
 void BcstdPipe_close(BcstdPipe pipe);
 void BcstdPipeHandle_close(BcstdPipeHandle handle);
 
-OutStream BcstdPipeHandle_outstream(BcstdPipeHandle* pipe);
-
-
 #endif // BETTER_C_STD_PIPE_H_
