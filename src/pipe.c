@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <string.h>
 #include <better_c_std/pipe.h>
-#include <better_c_std/string/str_t.h>
+#include <better_c_std/string/str.h>
 #include <better_c_std/prettify.h>
 
 #ifdef _WIN32
@@ -12,7 +12,7 @@ BcstdPipe BcstdPipe_open() {
     if (!CreatePipe(&pipe.read, &pipe.write, &sa, 0)) {
         return (BcstdPipeResult) {
             .is_ok = false,
-            .error = str_literal("Failed to create pipe."),
+            .error = BcstdStr_literal("Failed to create pipe."),
         };
     } else {
         return (BcstdPipeResult) {
@@ -28,7 +28,7 @@ BcstdPipeResult BcstdPipe_open() {
     if (pipe(handles) == -1) {
         return (BcstdPipeResult) {
             .is_ok = false,
-            .error = str_literal(strerror(errno)),
+            .error = BcstdStr_literal(strerror(errno)),
         };
     } else {
         return (BcstdPipeResult) {
@@ -56,11 +56,11 @@ void BcstdPipeHandle_close(BcstdPipeHandle handle) {
 }
 
 
-static int    stream_putc              (BcstdPipeHandle* this, int);
-static int    stream_puts              (BcstdPipeHandle* this, const char* str);
-static int    stream_put_slice         (BcstdPipeHandle* this, const char* str, size_t length);
-static size_t stream_get_available_size(BcstdPipeHandle* this);
-static str_t  stream_description       (BcstdPipeHandle* this);
+static int    stream_putc              (BcstdPipeHandle* self, int);
+static int    stream_puts              (BcstdPipeHandle* self, const char* str);
+static int    stream_put_slice         (BcstdPipeHandle* self, const char* str, size_t length);
+static size_t stream_get_available_size(BcstdPipeHandle* self);
+static BcstdStr  stream_description       (BcstdPipeHandle* self);
 
 static const OutStreamVtable* get_stream_vtable() {
     static const OutStreamVtable vtable = {
@@ -104,11 +104,11 @@ static size_t stream_get_available_size(BcstdPipeHandle* pipe) {
     unused(pipe);
     return SIZE_MAX;
 }
-static str_t stream_description(BcstdPipeHandle* pipe) {
+static BcstdStr stream_description(BcstdPipeHandle* pipe) {
     unused(pipe);
     #ifdef _WIN32
-        return str_literal("better_c_std Win32 pipe");
+        return BcstdStr_literal("better_c_std Win32 pipe");
     #else
-        return str_literal("better_c_std Unix pipe");
+        return BcstdStr_literal("better_c_std Unix pipe");
     #endif
 }

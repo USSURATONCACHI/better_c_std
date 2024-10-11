@@ -14,7 +14,7 @@ void x_printf(const char* format, ...) {
 
     VaListWrap wrap;
     va_copy(wrap.list, list);
-    x_vprintf(outstream_stdout(), format, wrap);
+    x_vprintf(OutStream_stdout(), format, wrap);
     va_end(list);
 }
 
@@ -44,7 +44,7 @@ void x_vprintf(OutStream stream, const char* format, VaListWrap list) {
     while (next[0] != '\0') {
         next = next_item(format);
         if ((ptrdiff_t)(next - format) > 0) {
-            outstream_put_slice(format, next - format, stream);
+            OutStream_put_slice(stream, format, next - format);
             total_written += (int)((ptrdiff_t)(next - format));
         }
 
@@ -97,7 +97,7 @@ static const char* put_format(OutStream stream, const char* format,
     } else if (info.type == 'n') {
         put_n_fmt(stream, info, format, list, total_written);
     } else if (info.type == '%') {
-        outstream_putc('%', stream);
+        OutStream_putc(stream, '%');
         (*total_written) += 2;
         return format + 2;
     } else if (info.type == 0) {
@@ -109,7 +109,7 @@ static const char* put_format(OutStream stream, const char* format,
         strncpy(format_buf, format, info.symbols_count + 1);
         vsprintf(buffer, format_buf, list->list);
 
-        outstream_puts(buffer, stream);
+        OutStream_puts(stream, buffer);
         (*total_written) += strlen(buffer);
     }
 
@@ -123,18 +123,18 @@ static void put_string_fmt(OutStream stream, Specificator info,
     if (info.precision > 0) {
         char* string = va_arg(list->list, char*);
 
-        outstream_put_slice(string, info.precision, stream);
+        OutStream_put_slice(stream, string, info.precision);
         (*total_written) +=
                 info.precision == 0 ? 0 : MIN((int)strlen(string), info.precision);
     } else if (info.precision == - 1) {
         int len = va_arg(list->list, int);
         char* string = va_arg(list->list, char*);
-        outstream_put_slice(string, len, stream);
+        OutStream_put_slice(stream, string, len);
         (*total_written) += len == 0 ? 0 : MIN((int)strlen(string), len);
     } else {
         char* string = va_arg(list->list, char*);
         // printf("< for str got ptr %p >", string);
-        outstream_puts(string, stream);
+        OutStream_puts(stream, string);
         (*total_written) += strlen(string);
     }
 }
@@ -169,7 +169,7 @@ static void put_bool_fmt(OutStream stream, Specificator spec,
 
     bool b = va_arg(list->list, int);
     const char* to_put = b ? "true" : "false";
-    outstream_puts(to_put, stream);
+    OutStream_puts(stream, to_put);
     (*total_written) += strlen(to_put);
 }
 
@@ -191,10 +191,6 @@ static Specificator parse_specificator(const char* str) {
     size_t len = strlen(str);
 
     size_t i = 0;
-    // if (str[i] == 'r') {
-    // spec.is_array = true;
-    // i++;
-    // }
 
     // Flags
     for (; i < len; i++) {

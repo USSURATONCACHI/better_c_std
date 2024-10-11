@@ -8,10 +8,10 @@ typedef struct Printable {
   void (*print)(const void* data, OutStream stream);
 } Printable;
 
-void printable_print(Printable this, OutStream out);
-void printable_print_std(Printable this);
+void printable_print(Printable self, OutStream out);
+void printable_print_std(Printable self);
 
 Printable printable_string(const char* string);
-Printable printable_outstream(const OutStream* this);
+Printable printable_outstream(const OutStream* self);
 
 #endif  // BETTER_C_STD_IO_PRINTABLE_H_

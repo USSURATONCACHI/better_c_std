@@ -16,11 +16,14 @@ add_library(s21_ussur_better_c_std SHARED
     src/time.c
 
     src/string/str_slice.c
-    src/string/str_t.c
+    src/string/str.c
     src/string/string_stream.c
 
+    src/io/buffer_out_stream.c
     src/io/out_stream.c
+    src/io/print.c
     src/io/printable.c
+    src/io/printer.c
     src/io/x_printf.c
 
     src/camera/camera.c

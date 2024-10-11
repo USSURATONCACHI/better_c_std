@@ -49,7 +49,7 @@ void x_printf_ext_print(OutStream stream, const char* format, VaListWrap* list,
 static void printer_slice(OutStream stream, VaListWrap* list,
                           int* total_written) {
   StrSlice slice = va_arg(list->list, StrSlice);
-  outstream_put_slice(slice.start, slice.length, stream);
+  OutStream_put_slice(stream, slice.start, slice.length);
   (*total_written) += slice.length;
 }
 

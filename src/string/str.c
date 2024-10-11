@@ -1,4 +1,4 @@
-#include <better_c_std/string/str_t.h>
+#include <better_c_std/string/str.h>
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -8,39 +8,39 @@
 #include <better_c_std/prettify.h>
 #include <better_c_std/string/string_stream.h>
 
-str_t str_literal(const char* literal) { return (str_t){literal, false}; }
-str_t str_owned(const char* format, ...) {
+BcstdStr BcstdStr_literal(const char* literal) { return (BcstdStr){literal, false}; }
+BcstdStr BcstdStr_owned(const char* format, ...) {
     va_list list;
     va_start(list, format);
 
-    StringStream builder = string_stream_create();
-    OutStream os = string_stream_stream(&builder);
+    BcstdStringStream builder = BcstdStringStream_create();
+    OutStream os = BcstdStringStream_stream(&builder);
 
     VaListWrap wrap;
     va_copy(wrap.list, list);
     x_vprintf(os, format, wrap);
-    str_t result = string_stream_to_str_t(builder);
+    BcstdStr result = BcstdStringStream_to_BcstdStr(builder);
 
     va_end(list);
 
     return result;
 }
 
-str_t str_borrow(const str_t* from) {
-    return (str_t){.is_owned = false, .string = from->string};
+BcstdStr BcstdStr_borrow(const BcstdStr* from) {
+    return (BcstdStr){.is_owned = false, .string = from->string};
 }
 
-str_t str_raw_owned(char* text) {
-    return (str_t){.is_owned = true, .string = text};
+BcstdStr BcstdStr_raw_owned(char* text) {
+    return (BcstdStr){.is_owned = true, .string = text};
 }
 
-void str_free(str_t s) {
+void BcstdStr_free(BcstdStr s) {
     if (s.is_owned) {
         free((void*)s.string);
     }
 }
 
-void str_free_p(str_t* s) {
+void BcstdStr_free_p(BcstdStr* s) {
     if (s == NULL) return;
 
     if (s->is_owned && s->string != NULL) free((void*)s->string);
@@ -48,13 +48,13 @@ void str_free_p(str_t* s) {
     free(s);
 }
 
-str_t str_clone(const str_t* source) {
+BcstdStr BcstdStr_clone(const BcstdStr* source) {
     if (source->is_owned) {
         int len = strlen(source->string) + 1;
         char* data = (char*) malloc(len * sizeof(char));
         assert_alloc(data);
         strcpy(data, source->string);
-        return (str_t){
+        return (BcstdStr){
             .is_owned = source->is_owned,
             .string = data,
         };
@@ -63,14 +63,14 @@ str_t str_clone(const str_t* source) {
     }
 }
 
-void str_result_free(StrResult this) { 
+void BcstdStr_result_free(BcstdStrResult this) { 
     if (this.is_ok)
-        str_free(this.ok);
+        BcstdStr_free(this.ok);
     else
-        str_free(this.error);
+        BcstdStr_free(this.error);
 }
 
-str_t read_file_to_str(const char* filename) {
+BcstdStr read_file_to_str(const char* filename) {
     char* buffer = NULL;
     long length;
     FILE* f = fopen(filename, "rb");
@@ -91,12 +91,12 @@ str_t read_file_to_str(const char* filename) {
                 buffer[i] = ' ';
     }
 
-    return (str_t){.is_owned = true, .string = buffer};
+    return (BcstdStr){.is_owned = true, .string = buffer};
 }
 
-#include <better_c_std/string/vec_str_t.h>
+#include <better_c_std/string/vec_str.h>
 
-#define VECTOR_C str_t
-#define VECTOR_ITEM_DESTRUCTOR str_free
-#define VECTOR_ITEM_CLONE str_clone
+#define VECTOR_C BcstdStr
+#define VECTOR_ITEM_DESTRUCTOR BcstdStr_free
+#define VECTOR_ITEM_CLONE BcstdStr_clone
 #include <better_c_std/vector.h>

@@ -1,5 +1,5 @@
 #include <better_c_std/io/printable.h>
-#include <better_c_std/string/str_t.h>
+#include <better_c_std/string/str.h>
 #include <better_c_std/prettify.h>
 
 void printable_print(Printable this, OutStream out) {
@@ -7,19 +7,19 @@ void printable_print(Printable this, OutStream out) {
 }
 
 void printable_print_std(Printable this) {
-    this.print(this.data, outstream_stdout());
+    this.print(this.data, OutStream_stdout());
 }
 
 Printable printable_string(const char* string) {
-    return (Printable){.data = string, .print = (void*)outstream_puts};
+    return (Printable){.data = string, .print = (void*)OutStream_puts};
 }
 
 static void print_outstream(const OutStream* this, OutStream out) {
-    outstream_puts("OutStream(", out);
-    str_t descr = outstream_description(*this);
-    outstream_puts(descr.string, out);
-    str_free(descr);
-    outstream_puts(")", out);
+    OutStream_puts(out, "OutStream(");
+    BcstdStr descr = OutStream_description(*this);
+    OutStream_puts(out, descr.string);
+    BcstdStr_free(descr);
+    OutStream_puts(out, ")");
 }
 
 Printable printable_outstream(const OutStream* this) {

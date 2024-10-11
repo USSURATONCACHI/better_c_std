@@ -3,28 +3,28 @@
 #include <string.h>
 
 #include <better_c_std/prettify.h>
-#include <better_c_std/string/str_t.h>
+#include <better_c_std/string/str.h>
 
 #define BUFFER_EXTRA_CAP 128
 #define CHAR_REALLOC_COEF 4 / 3
 
-void string_stream_free(StringStream this) { free(this.buffer); }
+void BcstdStringStream_free(BcstdStringStream this) { free(this.buffer); }
 
-StringStream string_stream_create() {
-    return (StringStream){
+BcstdStringStream BcstdStringStream_create() {
+    return (BcstdStringStream){
             .buffer = NULL,
             .capacity = 0,
             .length = 0,
     };
 }
 
-StringStream string_stream_clone(const StringStream* source) {
+BcstdStringStream BcstdStringStream_clone(const BcstdStringStream* source) {
     if (source->buffer) {
         size_t new_cap = source->length + BUFFER_EXTRA_CAP;
         char* buffer = (char*)malloc(new_cap * sizeof(char));
         assert_alloc(buffer);
         memcpy(buffer, source->buffer, source->length);
-        return (StringStream){
+        return (BcstdStringStream){
                 .buffer = buffer,
                 .capacity = new_cap,
                 .length = source->length,
@@ -34,13 +34,13 @@ StringStream string_stream_clone(const StringStream* source) {
     }
 }
 
-void string_stream_print(const StringStream* tthis, OutStream out) {
-    outstream_puts("StringStream(", out);
-    outstream_put_slice(tthis->buffer, tthis->length, out);
-    outstream_puts(")", out);
+void BcstdStringStream_print(const BcstdStringStream* self, OutStream out) {
+    OutStream_puts(out, "BcstdStringStream(");
+    OutStream_put_slice(out, self->buffer, self->length);
+    OutStream_puts(out, ")");
 }
 
-static void ss_realloc(StringStream* this, size_t add_size) {
+static void ss_realloc(BcstdStringStream* this, size_t add_size) {
     size_t new_cap =
             this->capacity * CHAR_REALLOC_COEF + add_size + BUFFER_EXTRA_CAP;
     this->buffer = (char*)realloc(this->buffer, new_cap);
@@ -48,14 +48,14 @@ static void ss_realloc(StringStream* this, size_t add_size) {
     this->capacity = new_cap;
 }
 
-static int ss_putc(StringStream* this, int c) {
+static int ss_putc(BcstdStringStream* this, int c) {
     if (this->length >= this->capacity) ss_realloc(this, 1);
 
     this->buffer[this->length++] = c;
     return c;
 }
 
-static int ss_puts(StringStream* this, const char* str) {
+static int ss_puts(BcstdStringStream* this, const char* str) {
     size_t len = strlen(str);
     if ((this->length + len) > this->capacity) ss_realloc(this, len);
 
@@ -64,7 +64,7 @@ static int ss_puts(StringStream* this, const char* str) {
     return '\n';
 }
 
-static int ss_put_slice(StringStream* this, const char* str, int length) {
+static int ss_put_slice(BcstdStringStream* this, const char* str, int length) {
     if (length == 0) return '\n';
     if ((this->length + length) > this->capacity) ss_realloc(this, length);
 
@@ -73,16 +73,16 @@ static int ss_put_slice(StringStream* this, const char* str, int length) {
     return '\n';
 }
 
-static size_t ss_get_available_size(StringStream* this) {
+static size_t ss_get_available_size(BcstdStringStream* this) {
     unused(this);
     return SIZE_MAX;
 }
-static str_t ss_description(StringStream* this) {
+static BcstdStr ss_description(BcstdStringStream* this) {
     unused(this);
-    return str_literal("StringStream");
+    return BcstdStr_literal("BcstdStringStream");
 }
 
-OutStream string_stream_stream(StringStream* tthis) {
+OutStream BcstdStringStream_stream(BcstdStringStream* self) {
     static const OutStreamVtable TABLE = {
             .putc = (void*)ss_putc,
             .puts = (void*)ss_puts,
@@ -90,14 +90,14 @@ OutStream string_stream_stream(StringStream* tthis) {
             .description = (void*)ss_description,
             .get_available_size = (void*)ss_get_available_size,
         };
-    return (OutStream){.data = tthis, .vtable = &TABLE};
+    return (OutStream){.data = self, .vtable = &TABLE};
 }
 
-char* string_stream_collect(StringStream tthis) {
-    ss_putc(&tthis, '\0');
-    return tthis.buffer;
+char* BcstdStringStream_collect(BcstdStringStream self) {
+    ss_putc(&self, '\0');
+    return self.buffer;
 }
 
-str_t string_stream_to_str_t(StringStream tthis) {
-    return str_raw_owned(string_stream_collect(tthis));
+BcstdStr BcstdStringStream_to_BcstdStr(BcstdStringStream self) {
+    return BcstdStr_raw_owned(BcstdStringStream_collect(self));
 }

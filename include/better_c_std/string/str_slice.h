@@ -2,17 +2,20 @@
 #define BETTER_C_STD_STRING_STR_SLICE_H_
 
 #include <stdbool.h>
-#include <better_c_std/string/str_t_raw.h>
+#include <stddef.h>
+#include <better_c_std/string/str_struct.h>
 
 typedef struct StrSlice {
   const char* start;
-  int length;
+  size_t length;
 } StrSlice;
 
-bool str_slice_eq_ccp(StrSlice slice, const char* string);
-bool str_slice_eq(StrSlice a, StrSlice b);
-str_t str_slice_to_owned(StrSlice slice);
-StrSlice str_slice_from_string(const char* str);
-StrSlice str_slice_from_str_t(const str_t* str);
+#define StrSlice_NULL ((StrSlice) { NULL, 0 })
+
+bool BcstdStrSlice_eq_ccp(StrSlice slice, const char* string);
+bool BcstdStrSlice_eq(StrSlice a, StrSlice b);
+BcstdStr BcstdStrSlice_to_owned(StrSlice slice);
+StrSlice BcstdStrSlice_from_string(const char* str);
+StrSlice BcstdStrSlice_from_BcstdStr(const BcstdStr* str);
 
 #endif  // BETTER_C_STD_STRING_STR_SLICE_H_

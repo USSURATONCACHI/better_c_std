@@ -1,23 +1,23 @@
-#ifndef BETTERC_STD_STRING_STRING_STREAM_H_
-#define BETTERC_STD_STRING_STRING_STREAM_H_
+#ifndef BETTER_C_STD_STRING_STRING_STREAM_H_
+#define BETTER_C_STD_STRING_STRING_STREAM_H_
 
 #include <stdint.h>
 
 #include <better_c_std/io.h>
 
-typedef struct StringStream {
+typedef struct BcstdStringStream {
   char* buffer;
   size_t capacity;
   size_t length;
-} StringStream;
+} BcstdStringStream;
 
-void string_stream_free(StringStream tthis);
-StringStream string_stream_create();
-StringStream string_stream_clone(const StringStream* source);
-void string_stream_print(const StringStream* tthis, OutStream out);
+void BcstdStringStream_free(BcstdStringStream self);
+BcstdStringStream BcstdStringStream_create();
+BcstdStringStream BcstdStringStream_clone(const BcstdStringStream* source);
+void BcstdStringStream_print(const BcstdStringStream* self, OutStream out);
 
-OutStream string_stream_stream(StringStream* tthis);
-char* string_stream_collect(StringStream tthis);
-str_t string_stream_to_str_t(StringStream tthis);
+OutStream BcstdStringStream_stream(BcstdStringStream* self);
+char* BcstdStringStream_collect(BcstdStringStream self);
+BcstdStr BcstdStringStream_to_BcstdStr(BcstdStringStream self);
 
-#endif  // BETTERC_STD_STRING_STRING_STREAM_H_
+#endif  // BETTER_C_STD_STRING_STRING_STREAM_H_

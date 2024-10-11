@@ -36,7 +36,7 @@ You can substitute the point to where to print logs with `DEBUG_OUT` macro of ty
 
 Check out readme at https://github.com/USSURATONCACHI/c_vector.h for examples and usage.
 
-### str_t
+### BcstdStr
 
 Can be both an allocated string with buffer, or a literal/reference.
 
@@ -45,17 +45,17 @@ Can be both an allocated string with buffer, or a literal/reference.
 #include <better_c_std/string.h>
 
 int main(int argc, char** argv) {
-    str_t s1 = str_owned("Hello, world");
-    str_t s2 = str_owned("Program has %d args", argc);
-    str_t s3 = str_literal("This string does not introduce allocations");
+    BcstdStr s1 = BcstdStr_owned("Hello, world");
+    BcstdStr s2 = BcstdStr_owned("Program has %d args", argc);
+    BcstdStr s3 = BcstdStr_literal("This string does not introduce allocations");
 
     x_printf("%s\n", s1.string);
     x_printf("%s\n", s2.string);
     x_printf("%s\n", s3.string);
 
-    str_free(s1);
-    str_free(s2);
-    str_free(s3);
+    BcstdStr_free(s1);
+    BcstdStr_free(s2);
+    BcstdStr_free(s3);
 }
 ```
 Output:

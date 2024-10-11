@@ -24,7 +24,7 @@ typedef struct {
     BcstdPipeHandle write;
 } BcstdPipe;
 
-typedef STRUCT_RESULT(BcstdPipe, str_t) BcstdPipeResult;
+typedef STRUCT_RESULT(BcstdPipe, BcstdStr) BcstdPipeResult;
 
 BcstdPipeResult BcstdPipe_open();
 void BcstdPipe_close(BcstdPipe pipe);

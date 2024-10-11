@@ -7,7 +7,7 @@
 
 #define panic(...)                                                          \
   {                                                                         \
-    OutStream err_stream = outstream_stderr();                              \
+    OutStream err_stream = OutStream_stderr();                              \
     x_sprintf(err_stream, "\n+-+-+-+-+-+-+-+-+-+-\n");                      \
     x_sprintf(err_stream, "Panic in file %s:%d, function %s: \n", __FILE__, \
               __LINE__, __func__);                                          \

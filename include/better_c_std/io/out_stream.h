@@ -5,40 +5,52 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <better_c_std/string/str_t_raw.h>
+#include <better_c_std/string/str.h>
 
 typedef struct OutStreamVtable {
-    int (*putc)(void* tthis, int);
-    int (*puts)(void* tthis, const char* str);
-    int (*put_slice)(void* tthis, const char* str, size_t length);
+    int (*putc)(void* self, int);
+    int (*puts)(void* self, const char* str);
+    int (*put_slice)(void* self, const char* str, size_t length);
 
-    size_t (*get_available_size)(void* tthis);
-    str_t (*description)(void* tthis);
+    size_t (*get_available_size)(void* self);
+    BcstdStr (*description)(void* self);
 } OutStreamVtable;
 
+// OutStream is a fat pointer to some object.
 typedef struct OutStream {
     void* data;
     const OutStreamVtable* vtable;
 } OutStream;
 
-int outstream_putc(int c, OutStream tthis);
-int outstream_puts(const char* string, OutStream tthis);
-int outstream_put_slice(const char* string, size_t length, OutStream tthis);
-size_t outstream_available_space(OutStream tthis);
-str_t outstream_description(OutStream tthis);
+OutStream OutStream_from_file(FILE* file);
+OutStream OutStream_stdout();
+OutStream OutStream_stderr();
 
-void outstream_x_vprintf(OutStream tthis, va_list list);
-void outstream_x_printf(OutStream tthis, ...);
-
-OutStream outstream_from_file(FILE* file);
-OutStream outstream_stdout();
-OutStream outstream_stderr();
-
-typedef struct BufferOutStream {
-    char* buffer;
-    size_t length;
-    size_t pos;
-} BufferOutStream;
-OutStream outstream_from_buffer(BufferOutStream* b);
+// Simple wrappers for calls
+static inline int OutStream_putc(OutStream self, int c) {
+    if (self.vtable && self.vtable->putc)
+        return self.vtable->putc(self.data, c);
+    return 0;
+}
+static inline int OutStream_puts(OutStream self, const char* string) {
+    if (self.vtable && self.vtable->puts)
+        return self.vtable->puts(self.data, string);
+    return 0;
+}
+static inline int OutStream_put_slice(OutStream self, const char* string, size_t length) {
+    if (self.vtable && self.vtable->put_slice)
+        return self.vtable->put_slice(self.data, string, length);
+    return 0;
+}
+static inline size_t OutStream_available_space(OutStream self) {
+    if (self.vtable && self.vtable->get_available_size)
+        return self.vtable->get_available_size(self.data);
+    return SIZE_MAX;
+}
+static inline BcstdStr OutStream_description(OutStream self) {
+    if (self.vtable && self.vtable->description)
+        return self.vtable->description(self.data);
+    return BcstdStr_literal("<null OutStream>");
+}
 
 #endif  // BETTER_C_STD_IO_OUT_STREAM_H_

@@ -21,7 +21,7 @@ void debug_print_tabs() {
 
 
 OutStream debug_get_default_outstream() {
-    return outstream_stdout();
+    return OutStream_stdout();
 }
 OutStream debug_get_outstream() {
     if (!is_stream_set) {
