@@ -113,10 +113,10 @@ For complex type names use typedefs: `typedef char* char_ptr;`.
 #endif
 
 #ifndef VECTOR_ITEM_TYPE
-	#warning VECTOR_ITEM_TYPE is undefined, cannot construct vector.
+	#error VECTOR_ITEM_TYPE is undefined, cannot construct vector.
 #else
 	#include <string.h>
-
+	
 	#ifndef VECTOR_MALLOC_FN
 		#include <stdlib.h>
 		#define VECTOR_MALLOC_FN malloc
@@ -127,13 +127,14 @@ For complex type names use typedefs: `typedef char* char_ptr;`.
 		#define VECTOR_FREE_FN free
 	#endif
 
+	#include <better_c_std/weak.h>
 	#ifdef VECTOR_MAKE_STATIC
 		#define VEC_STATIC_PREFIX static
 	#else
-		#define VEC_STATIC_PREFIX
+		#define VEC_STATIC_PREFIX WEAK
 	#endif
-	#include <stddef.h>
 
+	#include <stddef.h>
 	#include <better_c_std/prettify/assert.h>
 	#include <better_c_std/prettify/misc.h>
 
@@ -154,23 +155,23 @@ For complex type names use typedefs: `typedef char* char_ptr;`.
 	#endif
 
 	// Names of functions
-	#define VEC_CREATE CONCAT(VEC_T, _create)
-	#define VEC_WITH_CAPACITY CONCAT(VEC_T, _with_capacity)
+	#define VEC_CREATE            CONCAT(VEC_T, _create)
+	#define VEC_WITH_CAPACITY     CONCAT(VEC_T, _with_capacity)
 	#define VEC_WITH_CAPACITY_TRY CONCAT(VEC_T, _with_capacity_try)
-	#define VEC_CREATE_COPY CONCAT(VEC_T, _create_copy)
-	#define VEC_CLONE CONCAT(VEC_T, _clone)
-	#define VEC_FROM_RAW CONCAT(VEC_T, _from_raw)
-	#define VEC_PUSH CONCAT(VEC_T, _push)
-	#define VEC_INSERT CONCAT(VEC_T, _insert)
-	#define VEC_POPGET CONCAT(VEC_T, _popget)
-	#define VEC_POPFREE CONCAT(VEC_T, _popfree)
-	#define VEC_AT CONCAT(VEC_T, _at)
-	#define VEC_ATREF CONCAT(VEC_T, _atref)
-	#define VEC_EXTRACT_FAST CONCAT(VEC_T, _extract_fast)
-	#define VEC_EXTRACT_ORDER CONCAT(VEC_T, _extract_order)
-	#define VEC_DELETE_FAST CONCAT(VEC_T, _delete_fast)
-	#define VEC_DELETE_ORDER CONCAT(VEC_T, _delete_order)
-	#define VEC_FREE CONCAT(VEC_T, _free)
+	#define VEC_CREATE_COPY       CONCAT(VEC_T, _create_copy)
+	#define VEC_CLONE             CONCAT(VEC_T, _clone)
+	#define VEC_FROM_RAW          CONCAT(VEC_T, _from_raw)
+	#define VEC_PUSH              CONCAT(VEC_T, _push)
+	#define VEC_INSERT            CONCAT(VEC_T, _insert)
+	#define VEC_POPGET            CONCAT(VEC_T, _popget)
+	#define VEC_POPFREE           CONCAT(VEC_T, _popfree)
+	#define VEC_AT                CONCAT(VEC_T, _at)
+	#define VEC_ATREF             CONCAT(VEC_T, _atref)
+	#define VEC_EXTRACT_FAST      CONCAT(VEC_T, _extract_fast)
+	#define VEC_EXTRACT_ORDER     CONCAT(VEC_T, _extract_order)
+	#define VEC_DELETE_FAST       CONCAT(VEC_T, _delete_fast)
+	#define VEC_DELETE_ORDER      CONCAT(VEC_T, _delete_order)
+	#define VEC_FREE              CONCAT(VEC_T, _free)
 
 	// Function declarations
 	#ifndef VECTOR_NO_HEADERS
