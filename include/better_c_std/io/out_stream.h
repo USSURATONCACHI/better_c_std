@@ -11,6 +11,7 @@ typedef struct OutStreamVtable {
     int (*putc)(void* self, int);
     int (*puts)(void* self, const char* str);
     int (*put_slice)(void* self, const char* str, size_t length);
+    int (*write)(void* self, const void* data, size_t size);
 
     size_t (*get_available_size)(void* self);
     BcstdStr (*description)(void* self);
@@ -51,6 +52,11 @@ static inline BcstdStr OutStream_description(OutStream self) {
     if (self.vtable && self.vtable->description)
         return self.vtable->description(self.data);
     return BcstdStr_literal("<null OutStream>");
+}
+static inline int OutStream_write(OutStream self, void* data, size_t size) {
+    if (self.vtable && self.vtable->write)
+        return self.vtable->write(self.data, data, size);
+    return 0;
 }
 
 #endif  // BETTER_C_STD_IO_OUT_STREAM_H_

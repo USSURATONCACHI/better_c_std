@@ -26,8 +26,7 @@ static int puts_buf(BufferOutStream* self, const char* str) {
     }
 }
 
-static int put_slice_buf(BufferOutStream* self, const char* str,
-                                                 size_t length) {
+static int put_slice_buf(BufferOutStream* self, const char* str, size_t length) {
     if (self->pos >= self->length) return EOF;
 
     size_t i;
@@ -41,6 +40,18 @@ static int put_slice_buf(BufferOutStream* self, const char* str,
     } else {
         return EOF;
     }
+}
+
+static int write_buf(BufferOutStream* self, const void* data, size_t length) {
+    if (self->pos >= self->length) 
+        return EOF;
+
+    size_t i;
+    for (i = 0; i < length && (self->pos + i + 1) < self->length; i++)
+        self->buffer[i + self->pos] = ((const char*)data)[i];
+    self->buffer[i + self->pos] = '\0';
+    self->pos += length;
+    return i;
 }
 static size_t get_size_buf(BufferOutStream* self) {
     return self->pos - self->length;
@@ -56,7 +67,8 @@ OutStream outstream_from_buffer(BufferOutStream* b) {
             .puts               = (void*)puts_buf,
             .put_slice          = (void*)put_slice_buf,
             .get_available_size = (void*)get_size_buf,
-            .description        = (void*)description_buf
+            .description        = (void*)description_buf,
+            .write              = (void*)write_buf,
         };
 
     return (OutStream){.data = b, .vtable = &BUFFER_VTABLE};

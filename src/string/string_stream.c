@@ -64,6 +64,15 @@ static int ss_puts(BcstdStringStream* this, const char* str) {
     return '\n';
 }
 
+static int ss_write(BcstdStringStream* this, const void* data, size_t size) {
+    if (size == 0) return 0;
+    if ((this->length + size) > this->capacity) ss_realloc(this, size);
+
+    memcpy(&this->buffer[this->length], data, sizeof(char) * size);
+    this->length += size;
+    return size;
+}
+
 static int ss_put_slice(BcstdStringStream* this, const char* str, int length) {
     if (length == 0) return '\n';
     if ((this->length + length) > this->capacity) ss_realloc(this, length);
@@ -84,11 +93,12 @@ static BcstdStr ss_description(BcstdStringStream* this) {
 
 OutStream BcstdStringStream_stream(BcstdStringStream* self) {
     static const OutStreamVtable TABLE = {
-            .putc = (void*)ss_putc,
-            .puts = (void*)ss_puts,
-            .put_slice = (void*)ss_put_slice,
-            .description = (void*)ss_description,
+            .putc               = (void*)ss_putc,
+            .puts               = (void*)ss_puts,
+            .put_slice          = (void*)ss_put_slice,
+            .description        = (void*)ss_description,
             .get_available_size = (void*)ss_get_available_size,
+            .write              = (void*)ss_write,
         };
     return (OutStream){.data = self, .vtable = &TABLE};
 }

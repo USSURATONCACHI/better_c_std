@@ -5,8 +5,15 @@
 #include <limits.h>
 #include <stdio.h>
 
-static int putc_file(FILE* self, int c) { return putc(c, self); }
-static int puts_file(FILE* self, const char* str) { return fputs(str, self); }
+static int putc_file(FILE* self, int c) { 
+    return putc(c, self); 
+}
+static int puts_file(FILE* self, const char* str) { 
+    return fputs(str, self); 
+}
+static int write_file(FILE* self, const void* data, size_t size) { 
+    return fwrite(data, 1, size, self); 
+}
 static int put_slice_file(FILE* self, const char* str, size_t length) {
     fprintf(self, "%.*s", (int)length, str);
     return '\n';
@@ -34,7 +41,8 @@ OutStream OutStream_from_file(FILE* file) {
             .puts               = (void*)puts_file,
             .put_slice          = (void*)put_slice_file,
             .get_available_size = (void*)get_size_vtable,
-            .description        = (void*)description_file
+            .description        = (void*)description_file,
+            .write              = (void*)write_file,
         };
 
     return (OutStream){.data = file, .vtable = &FILE_VTABLE};
@@ -47,6 +55,7 @@ OutStream OutStream_stdout() {
             .put_slice          = (void*)put_slice_file,
             .get_available_size = (void*)get_size_vtable,
             .description        = (void*)description_stdout, // self one is different
+            .write              = (void*)write_file,
         };
 
     return (OutStream){.data = stdout, .vtable = &STDOUT_VTABLE};
@@ -58,6 +67,7 @@ OutStream OutStream_stderr() {
             .put_slice          = (void*)put_slice_file,
             .get_available_size = (void*)get_size_vtable,
             .description        = (void*)description_stderr, // self one is different
+            .write              = (void*)write_file,
         };
 
     return (OutStream){.data = stderr, .vtable = &STDERR_VTABLE};

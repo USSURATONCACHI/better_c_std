@@ -5,41 +5,47 @@
 #include <better_c_std/prettify.h>
 
 #ifdef _WIN32
-BcstdPipe BcstdPipe_open() {
-    SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
-    BcstdPipe pipe;
 
-    if (!CreatePipe(&pipe.read, &pipe.write, &sa, 0)) {
-        return (BcstdPipeResult) {
-            .is_ok = false,
-            .error = BcstdStr_literal("Failed to create pipe."),
-        };
-    } else {
-        return (BcstdPipeResult) {
-            .is_ok = true,
-            .ok = pipe,
-        };
-    }
-}
 #else
-BcstdPipeResult BcstdPipe_open() {
-    BcstdPipeHandle handles[2];
+    #include <errno.h>
+#endif
 
-    if (pipe(handles) == -1) {
-        return (BcstdPipeResult) {
-            .is_ok = false,
-            .error = BcstdStr_literal(strerror(errno)),
-        };
-    } else {
-        return (BcstdPipeResult) {
-            .is_ok = true,
-            .ok = (BcstdPipe) {
-                .read = handles[0],
-                .write = handles[1],
-            },
-        };
+#ifdef _WIN32
+    BcstdPipe BcstdPipe_open() {
+        SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+        BcstdPipe pipe;
+
+        if (!CreatePipe(&pipe.read, &pipe.write, &sa, 0)) {
+            return (BcstdPipeResult) {
+                .is_ok = false,
+                .error = BcstdStr_literal("Failed to create pipe."),
+            };
+        } else {
+            return (BcstdPipeResult) {
+                .is_ok = true,
+                .ok = pipe,
+            };
+        }
     }
-}
+#else
+    BcstdPipeResult BcstdPipe_open() {
+        BcstdPipeHandle handles[2];
+
+        if (pipe(handles) == -1) {
+            return (BcstdPipeResult) {
+                .is_ok = false,
+                .error = BcstdStr_literal(strerror(errno)),
+            };
+        } else {
+            return (BcstdPipeResult) {
+                .is_ok = true,
+                .ok = (BcstdPipe) {
+                    .read = handles[0],
+                    .write = handles[1],
+                },
+            };
+        }
+    }
 #endif
 
 void BcstdPipe_close(BcstdPipe pipe) {
@@ -56,19 +62,22 @@ void BcstdPipeHandle_close(BcstdPipeHandle handle) {
 }
 
 
-static int    stream_putc              (BcstdPipeHandle* self, int);
-static int    stream_puts              (BcstdPipeHandle* self, const char* str);
-static int    stream_put_slice         (BcstdPipeHandle* self, const char* str, size_t length);
+static int    stream_putc     (BcstdPipeHandle* self, int);
+static int    stream_puts     (BcstdPipeHandle* self, const char* str);
+static int    stream_put_slice(BcstdPipeHandle* self, const char* str, size_t length);
+static int    stream_write    (BcstdPipeHandle* self, const void* data, size_t size);
+
 static size_t stream_get_available_size(BcstdPipeHandle* self);
-static BcstdStr  stream_description       (BcstdPipeHandle* self);
+static BcstdStr stream_description(BcstdPipeHandle* self);
 
 static const OutStreamVtable* get_stream_vtable() {
     static const OutStreamVtable vtable = {
-        .putc = (void*) stream_putc,
-        .puts = (void*) stream_puts,
-        .put_slice = (void*) stream_put_slice,
+        .putc               = (void*) stream_putc,
+        .puts               = (void*) stream_puts,
+        .put_slice          = (void*) stream_put_slice,
         .get_available_size = (void*) stream_get_available_size,
-        .description = (void*) stream_description,
+        .description        = (void*) stream_description,
+        .write              = (void*) stream_write,
     };
     return &vtable;
 }
@@ -100,6 +109,14 @@ static int stream_put_slice(BcstdPipeHandle* pipe, const char* str, size_t lengt
     #endif
     return '\n';
 }
+static int stream_write(BcstdPipeHandle* self, const void* data, size_t size) {
+    #ifdef _WIN32
+        return WriteFile(*self, data, size, NULL, NULL);
+    #else
+        return write(*self, data, size);
+    #endif
+}
+
 static size_t stream_get_available_size(BcstdPipeHandle* pipe) {
     unused(pipe);
     return SIZE_MAX;
@@ -110,5 +127,18 @@ static BcstdStr stream_description(BcstdPipeHandle* pipe) {
         return BcstdStr_literal("better_c_std Win32 pipe");
     #else
         return BcstdStr_literal("better_c_std Unix pipe");
+    #endif
+}
+
+BcstdReadResult BcstdPipeHandle_read(BcstdPipeHandle* pipe, void* out_data, size_t max_length) {
+    #ifdef _WIN32
+        #error Unimplemented, TODO
+    #else
+        ssize_t bytes_read = read(*pipe, out_data, max_length);
+        if (bytes_read == -1) {
+            return (BcstdReadResult) ERR(BcstdStr_literal(strerror(errno)));
+        } else {
+            return (BcstdReadResult) OK(bytes_read);
+        }
     #endif
 }

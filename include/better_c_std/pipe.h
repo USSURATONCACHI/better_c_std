@@ -30,4 +30,7 @@ BcstdPipeResult BcstdPipe_open();
 void BcstdPipe_close(BcstdPipe pipe);
 void BcstdPipeHandle_close(BcstdPipeHandle handle);
 
+typedef STRUCT_RESULT(size_t, BcstdStr) BcstdReadResult;
+BcstdReadResult BcstdPipeHandle_read(BcstdPipeHandle* pipe, void* out_data, size_t max_length);
+
 #endif // BETTER_C_STD_PIPE_H_
