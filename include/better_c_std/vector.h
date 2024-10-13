@@ -390,7 +390,7 @@ For complex type names use typedefs: `typedef char* char_ptr;`.
 			if (v.data) VECTOR_FREE_FN(v.data);
 
 			#ifdef DEBUG
-				printf("Deleted " STR(VEC_T) " at <?> (length %zu)\n", v.length);
+				printf("Deleted " STR(VEC_T) " (length %zu, buffer %p)\n", v.length, v.data);
 			#endif
 		}
 
