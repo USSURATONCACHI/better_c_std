@@ -123,3 +123,38 @@ long double BcstdTime_to_ldouble_secs_imprecise(BcstdTime t) {
     nanos /= (long double) NANOS_IN_A_SECOND;
     return secs + nanos;
 }
+
+
+
+BcstdTime BcstdTime_from_secs(uint64_t secs) {
+    return BcstdTime_normalize(
+        (BcstdTime) {
+            .seconds = secs,
+            .nanos = 0,
+        }
+    );
+}
+BcstdTime BcstdTime_from_millis(uint64_t millis) {
+    return BcstdTime_normalize(
+        (BcstdTime) {
+            .seconds = millis / 1000,
+            .nanos = (millis % 1000) * (1000 * 1000),
+        }
+    );
+}
+BcstdTime BcstdTime_from_micros(uint64_t micros) {
+    return BcstdTime_normalize(
+        (BcstdTime) {
+            .seconds = micros / (1000 * 1000),
+            .nanos = (micros % (1000 * 1000)) * 1000,
+        }
+    );
+}
+BcstdTime BcstdTime_from_nanos(uint64_t nanos) {
+    return BcstdTime_normalize(
+        (BcstdTime) {
+            .seconds = 0,
+            .nanos = nanos,
+        }
+    );
+}
