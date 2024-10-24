@@ -9,13 +9,19 @@ static int putc_file(FILE* self, int c) {
     return putc(c, self); 
 }
 static int puts_file(FILE* self, const char* str) { 
-    return fputs(str, self); 
+    if (str)
+        return fputs(str, self);
+    else
+        return fputs("<nil>", self);
 }
 static int write_file(FILE* self, const void* data, size_t size) { 
     return fwrite(data, 1, size, self); 
 }
 static int put_slice_file(FILE* self, const char* str, size_t length) {
-    fprintf(self, "%.*s", (int)length, str);
+    if (str)
+        fprintf(self, "%.*s", (int)length, str);
+    else
+        return fputs("<nil>", self);
     return '\n';
 }
 static size_t get_size_vtable(FILE* self) {

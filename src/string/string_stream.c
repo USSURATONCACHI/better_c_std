@@ -56,6 +56,9 @@ static int ss_putc(BcstdStringStream* this, int c) {
 }
 
 static int ss_puts(BcstdStringStream* this, const char* str) {
+    if (str == NULL)
+        return ss_puts(this, "<nil>");
+
     size_t len = strlen(str);
     if ((this->length + len) > this->capacity) ss_realloc(this, len);
 
@@ -65,7 +68,7 @@ static int ss_puts(BcstdStringStream* this, const char* str) {
 }
 
 static int ss_write(BcstdStringStream* this, const void* data, size_t size) {
-    if (size == 0) return 0;
+    if (data == NULL || size == 0) return 0;
     if ((this->length + size) > this->capacity) ss_realloc(this, size);
 
     memcpy(&this->buffer[this->length], data, sizeof(char) * size);
@@ -74,6 +77,9 @@ static int ss_write(BcstdStringStream* this, const void* data, size_t size) {
 }
 
 static int ss_put_slice(BcstdStringStream* this, const char* str, int length) {
+    if (str == NULL)
+        return ss_puts(this, "<nil>");
+
     if (length == 0) return '\n';
     if ((this->length + length) > this->capacity) ss_realloc(this, length);
 
