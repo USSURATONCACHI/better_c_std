@@ -122,10 +122,10 @@ static void put_string_fmt(OutStream stream, Specificator info,
     unused(format);
     if (info.precision > 0) {
         char* string = va_arg(list->list, char*);
+	size_t len = string ? strlen(string) : 0;
 
         OutStream_put_slice(stream, string, info.precision);
-        (*total_written) +=
-                info.precision == 0 ? 0 : MIN((int)strlen(string), info.precision);
+        (*total_written) += info.precision == 0 ? 0 : MIN((int)len, info.precision);
     } else if (info.precision == - 1) {
         int len = va_arg(list->list, int);
         char* string = va_arg(list->list, char*);
@@ -133,9 +133,12 @@ static void put_string_fmt(OutStream stream, Specificator info,
         (*total_written) += len == 0 ? 0 : MIN((int)strlen(string), len);
     } else {
         char* string = va_arg(list->list, char*);
+	size_t len = string ? strlen(string) : 0;
+
         // printf("< for str got ptr %p >", string);
+
         OutStream_puts(stream, string);
-        (*total_written) += strlen(string);
+        (*total_written) += len;
     }
 }
 
