@@ -14,6 +14,7 @@ add_library(s21_ussur_better_c_std SHARED
     src/printf_extensions.c
     src/pipe.c
     src/time.c
+    src/get_executable_dir.c
 
     src/string/str_slice.c
     src/string/str.c
